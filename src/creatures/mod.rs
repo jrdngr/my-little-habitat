@@ -5,7 +5,8 @@ pub trait Actor {
     fn act(&mut self, grid: Grid<Creature>);
 }
 
+#[derive(Clone, Debug)]
 pub struct Creature {
-    name: String,
-    color: Color,
+    pub name: String,
+    pub color: Color,
 }
