@@ -68,9 +68,6 @@ fn main() {
     const WINDOW_WIDTH: u32 = 500;
     const WINDOW_HEIGHT: u32 = 500;
 
-    const GRID_WIDTH: u16 = 50;
-    const GRID_HEIGHT: u16 = 50;
-
     let opengl = OpenGL::V3_2;
 
     let mut window: Window = WindowSettings::new(
