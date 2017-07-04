@@ -25,7 +25,7 @@ pub struct App {
 }
 
 impl App {
-    fn new(opengl: OpenGL, grid_width: u16, grid_height: u16) -> Self {
+    fn new(opengl: OpenGL, grid_width: u32, grid_height: u32) -> Self {
 
         let grid = Grid::new(grid_width, grid_height);
 
@@ -59,17 +59,21 @@ impl App {
         });
     }
 
+    fn update(&mut self, args: &UpdateArgs) {
+        args.dt;
+    }
+
     fn set_creature(&mut self, position: Position, creature_type: CreatureType) {
         self.grid.set_creature(position, creature_type);
     }
 }
 
 fn main() {
-    const WINDOW_WIDTH: u32 = 500;
-    const WINDOW_HEIGHT: u32 = 500;
+    const WINDOW_WIDTH: u32 = 600;
+    const WINDOW_HEIGHT: u32 = 600;
 
-    const GRID_WIDTH: u16 = 50;
-    const GRID_HEIGHT: u16 = 50;
+    const GRID_WIDTH: u32 = 200;
+    const GRID_HEIGHT: u32 = 200;
 
     let opengl = OpenGL::V3_2;
 
@@ -84,9 +88,17 @@ fn main() {
     let mut app = App::new(opengl, GRID_WIDTH, GRID_HEIGHT);
     let mut events = Events::new(EventSettings::new());
 
+    let width_scale = (WINDOW_WIDTH as u32 / GRID_WIDTH) as f32;
+    let height_scale = (WINDOW_HEIGHT as u32 / GRID_HEIGHT) as f32;
+
     let mut position: Position = (0, 0);
 
     while let Some(e) = events.next(&mut window) {
+        
+        if let Some(u) = e.update_args() {
+            app.update(&u);
+        }
+        
         if let Some(r) = e.render_args() {
             app.render(&r);
         }
@@ -99,8 +111,8 @@ fn main() {
 
         if let Some(pos) = e.mouse_cursor_args() {
             let (x, y) = (pos[0] as f32, pos[1] as f32);
-            let grid_x = (x as u16 / (WINDOW_WIDTH as u16 /GRID_WIDTH)) as u16;
-            let grid_y = (y as u16 / (WINDOW_HEIGHT as u16 / GRID_HEIGHT)) as u16;
+            let grid_x = (x  / width_scale) as u32;
+            let grid_y = (y  /  height_scale) as u32;
             position = (grid_x, grid_y);
         };
     }

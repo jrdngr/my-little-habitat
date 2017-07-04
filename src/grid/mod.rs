@@ -3,13 +3,13 @@ use super::utils::*;
 use super::creatures::*;
 
 pub struct Grid {
-    pub width: u16,
-    pub height: u16,
+    pub width: u32,
+    pub height: u32,
     data: Vec<Box<Creature>>,
 }
 
 impl Grid {
-    pub fn new(width: u16, height: u16) -> Self {
+    pub fn new(width: u32, height: u32) -> Self {
         let grid_size = width * height;
         let mut grid_data = Vec::with_capacity(grid_size as usize);
         
