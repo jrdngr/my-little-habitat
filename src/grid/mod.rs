@@ -1,31 +1,41 @@
-struct Point {
-    pub x: u16,
-    pub y: u16,
-}
+use std::mem;
+use super::utils::*;
+use super::creatures::*;
 
-struct Cell<T> {
-    pub position: Point,
-    pub contents: T,
-}
-
-impl<T> Cell<T> {
-    pub fn set_content(&mut self, new_contents: T) {
-        self.contents = new_contents;
-    }
-}
-
-pub struct Grid<T> {
+pub struct Grid {
     pub width: u16,
     pub height: u16,
-    data: Vec<Cell<T>>,
+    data: Vec<Box<Creature>>,
 }
 
-impl<T> Grid<T> {
-    pub fn new(width: u16, height: u16) -> Grid<T> {
+impl Grid {
+    pub fn new(width: u16, height: u16) -> Self {
+        let grid_size = width * height;
+        let mut grid_data = Vec::with_capacity(grid_size as usize);
+        
+        for i in 0..grid_size {
+            let position = (i % width, i / height);
+
+            let creature = get_creature(position, CreatureType::Empty);
+
+            grid_data.push(creature);
+        }
+
         Grid {
             width: width,
             height: height,
-            data: Vec::with_capacity((width * height) as usize),
+            data: grid_data,
         }
+    }
+
+    pub fn get_creatures(&self) -> &Vec<Box<Creature>> {
+        &self.data
+    }
+
+    pub fn set_creature(&mut self, position: Position, creature_type: CreatureType) {
+        let (x, y) = position;
+        let index = y * self.height + x;
+
+        mem::replace(&mut self.data[index as usize], get_creature(position, creature_type));
     }
 }
