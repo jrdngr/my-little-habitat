@@ -5,9 +5,7 @@ extern crate graphics;
 extern crate glutin_window;
 extern crate opengl_graphics;
 
-mod grid;
-mod creatures;
-mod utils;
+mod lib;
 
 use piston::window::WindowSettings;
 use piston::event_loop::*;
@@ -15,9 +13,9 @@ use piston::input::*;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
 
-use grid::*;
-use utils::*;
-use creatures::*;
+use lib::grid::*;
+use lib::utils::*;
+use lib::creatures::*;
 
 pub struct App {
     grid: Grid,
@@ -40,19 +38,18 @@ impl App {
 
         const WHITE: Color = [1.0, 1.0, 1.0, 1.0];
 
-        let creatures_width: f64 = args.width as f64 / self.grid.width as f64;
-        let creatures_height: f64 = args.height as f64/ self.grid.height as f64;
+        let creature_width: f64 = args.width as f64 / self.grid.width as f64;
+        let creature_height: f64 = args.height as f64/ self.grid.height as f64;
         
-        let square = rectangle::square(0.0, 0.0, creatures_width);
-  
-        let creatures = self.grid.get_creatures();
+        let square = rectangle::square(0.0, 0.0, creature_width);
+        let creatures = self.grid.get_creature_list();
 
         self.gl.draw(args.viewport(), |c, gl|{
 
             for creature in creatures {
                     let (x, y) = creature.get_position();
 
-                    let transform = c.transform.trans(x as f64 * creatures_width, y as f64 * creatures_height);
+                    let transform = c.transform.trans(x as f64 * creature_width, y as f64 * creature_height);
                     rectangle(creature.get_color(), square, transform, gl);
             }
 
@@ -60,7 +57,7 @@ impl App {
     }
 
     fn update(&mut self, args: &UpdateArgs) {
-        args.dt;
+        //args.dt;
     }
 
     fn set_creature(&mut self, position: Position, creature_type: CreatureType) {
@@ -72,8 +69,8 @@ fn main() {
     const WINDOW_WIDTH: u32 = 600;
     const WINDOW_HEIGHT: u32 = 600;
 
-    const GRID_WIDTH: u32 = 200;
-    const GRID_HEIGHT: u32 = 200;
+    const GRID_WIDTH: u32 = WINDOW_WIDTH / 2;
+    const GRID_HEIGHT: u32 = WINDOW_HEIGHT / 2;
 
     let opengl = OpenGL::V3_2;
 

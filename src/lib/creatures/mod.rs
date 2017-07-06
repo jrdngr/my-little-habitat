@@ -1,12 +1,12 @@
-mod empty;
-mod plant;
+pub mod empty;
+pub mod plant;
 
 use super::utils::*;
 use super::grid::Grid;
 use self::empty::Empty;
 use self::plant::Plant;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum CreatureType {
     Empty,
     Plant,
@@ -29,5 +29,5 @@ pub trait Creature {
     fn get_position(&self) -> Position;
     fn get_type(&self) -> CreatureType;
     fn get_color(&self) -> Color;
-    fn act(&mut self, grid: Grid);
+    fn act(&self, grid: &mut Grid);
 }

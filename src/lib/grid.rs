@@ -28,14 +28,26 @@ impl Grid {
         }
     }
 
-    pub fn get_creatures(&self) -> &Vec<Box<Creature>> {
-        &self.data
+    pub fn get_creature_list(&mut self) -> &mut Vec<Box<Creature>> {
+        &mut self.data
+    }
+
+    pub fn get_creature(&self, position: Position) -> &Box<Creature> {
+        &self.data[self.get_index(position)]
+    }
+
+    pub fn get_creature_by_index(&self, index: usize) -> &Box<Creature> {
+        &self.data[index]
     }
 
     pub fn set_creature(&mut self, position: Position, creature_type: CreatureType) {
-        let (x, y) = position;
-        let index = y * self.height + x;
-
-        mem::replace(&mut self.data[index as usize], get_creature(position, creature_type));
+        let index = self.get_index(position);
+        mem::replace(&mut self.data[index], get_creature(position, creature_type));
     }
+
+    fn get_index(&self, position: Position) -> usize {
+        let (x, y) = position;
+        (y * self.height + x) as usize
+    }
+
 }

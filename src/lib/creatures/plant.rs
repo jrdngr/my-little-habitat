@@ -2,23 +2,23 @@ use super::super::utils::*;
 use super::super::grid::Grid;
 use super::{ Creature, CreatureType };
 
-pub struct Empty {
+pub struct Plant {
     position: Position,
     creature_type: CreatureType,
     color: Color,
 }
 
-impl Empty {
+impl Plant {
     pub fn new(position: Position) -> Self {
-        Empty {
+        Plant {
             position: position,
-            creature_type: CreatureType::Empty,
-            color:  [0.0, 0.0, 0.0, 1.0],
+            creature_type: CreatureType::Plant,
+            color:  [0.0, 0.5, 0.0, 1.0],
         }
     }
 }
 
-impl Creature for Empty {
+impl Creature for Plant {
     fn get_position(&self) -> Position {
         self.position
     }
@@ -32,7 +32,9 @@ impl Creature for Empty {
     }
 
     #[allow(unused_variables)]
-    fn act(&mut self, grid: Grid) {
-        // Do nothing
+    fn act(&self, grid: &mut Grid) {
+        let (x, y) = self.position;
+        let new_pos: Position  = (x - 1, y - 1);
+        grid.set_creature(new_pos, CreatureType::Plant);
     }
 }
