@@ -5,7 +5,7 @@ use super::creatures::*;
 pub struct Grid {
     pub width: u32,
     pub height: u32,
-    data: Vec<Box<Creature>>,
+    data: Vec<Creature>,
 }
 
 impl Grid {
@@ -14,10 +14,7 @@ impl Grid {
         let mut grid_data = Vec::with_capacity(grid_size as usize);
         
         for i in 0..grid_size {
-            let position = (i % width, i / height);
-
-            let creature = get_creature(position, CreatureType::Empty);
-
+            let creature = get_creature(CreatureType::Empty);
             grid_data.push(creature);
         }
 
@@ -28,26 +25,44 @@ impl Grid {
         }
     }
 
-    pub fn get_creature_list(&mut self) -> &mut Vec<Box<Creature>> {
-        &mut self.data
+    pub fn iter(&self) -> GridIterator {
+        GridIterator {
+            grid: self,
+            next_index: 0,
+        }
     }
 
-    pub fn get_creature(&self, position: Position) -> &Box<Creature> {
-        &self.data[self.get_index(position)]
+    pub fn set_cell(&mut self, position: Position, creature: Creature) {
+        let index = self.position_to_index(position);
+        mem::replace(&mut self.data[index], creature);
     }
 
-    pub fn get_creature_by_index(&self, index: usize) -> &Box<Creature> {
-        &self.data[index]
-    }
-
-    pub fn set_creature(&mut self, position: Position, creature_type: CreatureType) {
-        let index = self.get_index(position);
-        mem::replace(&mut self.data[index], get_creature(position, creature_type));
-    }
-
-    fn get_index(&self, position: Position) -> usize {
+    pub fn position_to_index(&self, position: Position) -> usize {
         let (x, y) = position;
         (y * self.height + x) as usize
     }
 
+    pub fn index_to_position(&self, index: usize) -> Position {
+         (index as u32 % self.width, index as u32 / self.height)
+    }
+}
+
+pub struct GridIterator<'a> {
+    grid: &'a Grid,
+    next_index: usize,
+}
+
+impl<'a> Iterator for GridIterator<'a> {
+    type Item = &'a mut Creature;
+    
+    fn next(&mut self) -> Option<&'a mut Creature> {
+        let current_index = self.next_index;
+        if current_index >= self.grid.data.len() {
+            return None;
+        } else {
+            self.next_index += 1;
+            let creature = &self.grid.data[current_index];
+            return Some(&mut creature);
+        }
+    }
 }

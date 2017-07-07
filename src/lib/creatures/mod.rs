@@ -1,33 +1,63 @@
-pub mod empty;
-pub mod plant;
+use std::collections::HashMap;
 
 use super::utils::*;
 use super::grid::Grid;
-use self::empty::Empty;
-use self::plant::Plant;
 
-#[derive(Copy, Clone, PartialEq)]
+pub enum Property {
+    Integer(i64),
+    Decimal(f64),
+    Text(String),
+    Boolean(bool),
+}
+
+pub enum Action {
+    Move(Position, Position),
+    Split(Position, Position),
+    Eat(Position, Position),
+}
+
 pub enum CreatureType {
     Empty,
     Plant,
-    Cow,
-    Parasite,
 }
 
+pub struct Creature {
+    pub creature_type: CreatureType,
+    pub color: Color,
+    pub properties: HashMap<String, Property>,
+    action: fn(Position, &mut Grid),
+}
 
-pub fn get_creature(position: Position, creature_type: CreatureType) -> Box<Creature> {
-
-    match creature_type {
-        CreatureType::Empty       => Box::new(Empty::new(position)),
-        CreatureType::Plant       => Box::new(Plant::new(position)),
-        CreatureType::Cow         => Box::new(Empty::new(position)),
-        CreatureType::Parasite    => Box::new(Empty::new(position)),
+impl Creature {
+    pub fn act(&mut self, position: Position, grid: &mut Grid) {
+        (self.action)(position, grid);
     }
 }
 
-pub trait Creature {
-    fn get_position(&self) -> Position;
-    fn get_type(&self) -> CreatureType;
-    fn get_color(&self) -> Color;
-    fn act(&self, grid: &mut Grid);
+pub fn get_creature(creature_type: CreatureType) -> Creature {
+    match creature_type {
+        CreatureType::Empty   => {
+            Creature {
+                creature_type: CreatureType::Empty,
+                color: [0.0, 0.0, 0.0, 1.0],
+                properties: HashMap::new(),
+                action: empty_action,
+            }
+        }
+        CreatureType::Plant => {
+            Creature {
+                creature_type: CreatureType::Plant,
+                color: [0.0, 0.5, 0.0, 1.0],
+                properties: HashMap::new(),
+                action: plant_action,
+            }
+        }
+    }
+}
+
+fn empty_action(position: Position, grid: &mut Grid) {
+}
+
+fn plant_action((x, y): Position, grid: &mut Grid) {
+    grid.set_cell((x+1, y+1), get_creature(CreatureType::Plant));
 }
