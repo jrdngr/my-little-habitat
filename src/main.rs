@@ -16,7 +16,7 @@ use opengl_graphics::{ GlGraphics, OpenGL };
 
 use lib::grid::*;
 use lib::utils::*;
-use lib::creatures::*;
+use lib::creature::*;
 
 pub struct Environment {
     gl: GlGraphics,
@@ -32,14 +32,11 @@ impl Environment {
     fn render(&mut self, args: &RenderArgs, grid: &mut Grid) {
         use graphics::*;
 
-        const WHITE: Color = [1.0, 1.0, 1.0, 1.0];
-
         let creature_width: f64 = args.width as f64 / grid.width as f64;
         let creature_height: f64 = args.height as f64/ grid.height as f64;
         
         let square = rectangle::square(0.0, 0.0, creature_width);
         self.gl.draw(args.viewport(), |c, gl|{
-
             for (i, color) in grid.get_color_grid().into_iter().enumerate() {
                 let (x, y) = grid.index_to_position(i);
                 let transform = c.transform.trans(x as f64 * creature_width, y as f64 * creature_height);
@@ -48,7 +45,7 @@ impl Environment {
         });
     }
 
-    fn update(&mut self, args: &UpdateArgs, grid: &mut Grid) {
+    fn update(&mut self, grid: &mut Grid) {
         grid.step();
     }
 }
@@ -74,6 +71,9 @@ fn main() {
     let mut env = Environment::new(opengl);
     let mut events = Events::new(EventSettings::new());
 
+    events.set_max_fps(60);
+    events.set_ups(60);
+
     let width_scale = (WINDOW_WIDTH as u32 / GRID_WIDTH) as f64;
     let height_scale = (WINDOW_HEIGHT as u32 / GRID_HEIGHT) as f64;
 
@@ -85,8 +85,8 @@ fn main() {
             Input::Render(render_args) => {
                 env.render(&render_args, &mut grid);
             },
-            Input::Update(update_args) => {
-                env.update(&update_args, &mut grid);
+            Input::Update(_) => {
+                env.update(&mut grid);
             },
             Input::Press(button) => {
                 if button == Button::Mouse(MouseButton::Left) {
@@ -108,7 +108,7 @@ fn main() {
             _ => {}
         }
         if mouse_down {
-            grid.set_cell(position, get_creature(CreatureType::Plant));
+            grid.set_cell(position, get(CreatureType::Plant));
         }
     }
 }

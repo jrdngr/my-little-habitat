@@ -1,14 +1,11 @@
 use std::mem;
 use std::iter;
 use super::utils::*;
-use super::creatures::*;
+use super::creature::*;
 
-#[derive(Copy, Clone)]
 pub enum Action {
-    Move(Position, Position),
-    Split(Position, Position),
-    Eat(Position, Position),
-    Kill(Position),
+    Set(Position, Creature),
+    Clear(Position),
     Idle,
 }
 
@@ -24,7 +21,7 @@ impl Grid {
         let mut grid_data = Vec::with_capacity(grid_size as usize);
         
         for i in 0..grid_size {
-            let creature = get_creature(CreatureType::Empty);
+            let creature = get(CreatureType::Empty);
             grid_data.push(creature);
         }
 
@@ -38,31 +35,24 @@ impl Grid {
     pub fn step(&mut self) {
         for i in 0..self.data.len() {
             let position = self.index_to_position(i);
-            let action = self.data[i].act(position, self);
-            match action {
-                Action::Move(creature_pos, other_pos)   => {
-                    let other_index = self.position_to_index(other_pos);
-                    mem::replace(&mut self.data[i], get_creature(CreatureType::Empty));
-                    mem::replace(&mut self.data[other_index], get_creature(CreatureType::Plant));
-                },
-                Action::Split(creature_pos, other_pos)  => {
-                    let other_index = self.position_to_index(other_pos);
-                    if other_index >= self.data.len() {
-                        return;
-                    }
-                    mem::replace(&mut self.data[other_index], get_creature(CreatureType::Plant));
-                },
-                Action::Eat(creature_pos, other_pos)    => {
-                    let other_index = self.position_to_index(other_pos);
-                    mem::replace(&mut self.data[i], get_creature(CreatureType::Empty));
-                    mem::replace(&mut self.data[other_index], get_creature(CreatureType::Plant));
-                },
-                Action::Kill(creature_pos)              => {
-                    mem::replace(&mut self.data[i], get_creature(CreatureType::Empty));
-                },
-                Action::Idle                            => {},
+            let neighbors = self.get_neighbors(position);
+            let actions = self.data[i].act(neighbors);
+            for action in actions {
+                match action {
+                    Action::Set(pos, creature) => {
+                        let index = self.position_to_index(pos);
+                        if index >= self.data.len() {
+                            return;
+                        }
+                        mem::replace(&mut self.data[index], creature);
+                    },
+                    Action::Clear(pos) => {
+                        let index = self.position_to_index(pos);
+                        mem::replace(&mut self.data[index], get(CreatureType::Empty));
+                    },
+                    Action::Idle => {},
+                }
             }
-
         }
     }
 
@@ -75,17 +65,98 @@ impl Grid {
         color_grid
     }
 
+    pub fn get_cell(&mut self, position: Position) -> &Creature {
+        &self.data[self.position_to_index(position)]
+    }
+
     pub fn set_cell(&mut self, position: Position, creature: Creature) {
         let index = self.position_to_index(position);
         mem::replace(&mut self.data[index], creature);
     }
 
-    pub fn position_to_index(&self, position: Position) -> usize {
-        let (x, y) = position;
-        (y * self.height + x) as usize
+    pub fn position_to_index(&self, (x, y): Position) -> usize {
+        let index = (y * self.height + x) as usize;
+        if index >= self.data.len() {
+            panic!("Position ({},{}) gave invalid index: {}", x, y, index);
+        }
+        index
     }
 
     pub fn index_to_position(&self, index: usize) -> Position {
          (index as u32 % self.width, index as u32 / self.height)
+    }
+
+    pub fn get_neighbors(&mut self, (x, y): Position) -> Neighbors {
+        let mut neighbor_list: Vec<(CreatureType, Position)> = Vec::new();
+
+        let top_free = y > 0;
+        let bottom_free = y < self.height - 1;
+        let left_free = x > 0;
+        let right_free = x < self.width - 1;
+
+        if top_free {
+            if left_free {
+                let pos = (x-1, y-1);
+                neighbor_list.push((self.get_cell(pos).creature_type, pos));
+            }
+            let pos = (x, y-1);
+            neighbor_list.push((self.get_cell(pos).creature_type, pos));
+            if right_free {
+                let pos = (x+1, y-1);
+                neighbor_list.push((self.get_cell(pos).creature_type, pos));
+            }
+        }
+
+        if left_free {
+            let pos = (x-1, y);
+            neighbor_list.push((self.get_cell(pos).creature_type, pos));
+        }
+        if right_free {
+            let pos = (x+1, y);
+            neighbor_list.push((self.get_cell(pos).creature_type, pos));
+        }
+
+        if bottom_free {
+            if left_free {
+                let pos = (x-1, y+1);
+                neighbor_list.push((self.get_cell(pos).creature_type, pos));
+            }
+            let pos = (x, y+1);
+            neighbor_list.push((self.get_cell(pos).creature_type, pos));
+            if right_free {
+                let pos = (x+1, y+1);
+                neighbor_list.push((self.get_cell(pos).creature_type, pos));
+            }
+        }
+
+        Neighbors {
+            my_pos: (x, y),
+            neighbors: neighbor_list,            
+        }
+    }
+}
+
+pub struct Neighbors {
+    my_pos: Position,
+    neighbors: Vec<(CreatureType, Position)>,
+}
+
+impl Neighbors {
+    pub fn my_position(&self) -> Position {
+        self.my_pos
+    }
+
+    pub fn get_neighbor(&self, index: usize) -> (CreatureType, Position) {
+        self.neighbors[index]
+    }
+    
+    pub fn of_type(&self, creature_type: CreatureType) -> Vec<(CreatureType, Position)> {
+        let mut creature_list = Vec::new();
+        for i in 0..self.neighbors.len() {
+            if self.neighbors[i].0 == creature_type {
+                creature_list.push(self.neighbors[i])
+            }
+        }
+        creature_list
     }
 }
