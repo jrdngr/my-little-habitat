@@ -1,6 +1,16 @@
 use std::mem;
+use std::iter;
 use super::utils::*;
 use super::creatures::*;
+
+#[derive(Copy, Clone)]
+pub enum Action {
+    Move(Position, Position),
+    Split(Position, Position),
+    Eat(Position, Position),
+    Kill(Position),
+    Idle,
+}
 
 pub struct Grid {
     pub width: u32,
@@ -25,11 +35,44 @@ impl Grid {
         }
     }
 
-    pub fn iter(&self) -> GridIterator {
-        GridIterator {
-            grid: self,
-            next_index: 0,
+    pub fn step(&mut self) {
+        for i in 0..self.data.len() {
+            let position = self.index_to_position(i);
+            let action = self.data[i].act(position, self);
+            match action {
+                Action::Move(creature_pos, other_pos)   => {
+                    let other_index = self.position_to_index(other_pos);
+                    mem::replace(&mut self.data[i], get_creature(CreatureType::Empty));
+                    mem::replace(&mut self.data[other_index], get_creature(CreatureType::Plant));
+                },
+                Action::Split(creature_pos, other_pos)  => {
+                    let other_index = self.position_to_index(other_pos);
+                    if other_index >= self.data.len() {
+                        return;
+                    }
+                    mem::replace(&mut self.data[other_index], get_creature(CreatureType::Plant));
+                },
+                Action::Eat(creature_pos, other_pos)    => {
+                    let other_index = self.position_to_index(other_pos);
+                    mem::replace(&mut self.data[i], get_creature(CreatureType::Empty));
+                    mem::replace(&mut self.data[other_index], get_creature(CreatureType::Plant));
+                },
+                Action::Kill(creature_pos)              => {
+                    mem::replace(&mut self.data[i], get_creature(CreatureType::Empty));
+                },
+                Action::Idle                            => {},
+            }
+
         }
+    }
+
+    pub fn get_color_grid(&self) -> Vec<Color> {
+        let grid_size = self.width as usize * self.height as usize;
+        let mut color_grid = Vec::with_capacity(grid_size);
+        for i in 0..grid_size {
+            color_grid.push(self.data[i].color);
+        }
+        color_grid
     }
 
     pub fn set_cell(&mut self, position: Position, creature: Creature) {
@@ -44,25 +87,5 @@ impl Grid {
 
     pub fn index_to_position(&self, index: usize) -> Position {
          (index as u32 % self.width, index as u32 / self.height)
-    }
-}
-
-pub struct GridIterator<'a> {
-    grid: &'a Grid,
-    next_index: usize,
-}
-
-impl<'a> Iterator for GridIterator<'a> {
-    type Item = &'a mut Creature;
-    
-    fn next(&mut self) -> Option<&'a mut Creature> {
-        let current_index = self.next_index;
-        if current_index >= self.grid.data.len() {
-            return None;
-        } else {
-            self.next_index += 1;
-            let creature = &self.grid.data[current_index];
-            return Some(&mut creature);
-        }
     }
 }

@@ -4,6 +4,7 @@ extern crate piston;
 extern crate graphics;
 extern crate glutin_window;
 extern crate opengl_graphics;
+extern crate rand;
 
 mod lib;
 
@@ -39,20 +40,16 @@ impl Environment {
         let square = rectangle::square(0.0, 0.0, creature_width);
         self.gl.draw(args.viewport(), |c, gl|{
 
-            for (i, creature) in grid.iter().enumerate() {
+            for (i, color) in grid.get_color_grid().into_iter().enumerate() {
                 let (x, y) = grid.index_to_position(i);
                 let transform = c.transform.trans(x as f64 * creature_width, y as f64 * creature_height);
-                rectangle(creature.color, square, transform, gl);
+                rectangle(color, square, transform, gl);
             }
-
         });
     }
 
     fn update(&mut self, args: &UpdateArgs, grid: &mut Grid) {
-        for (i, creature) in grid.iter().enumerate() {
-            let position = grid.index_to_position(i);
-            creature.act(position, &mut grid);
-        }
+        grid.step();
     }
 }
 
@@ -81,6 +78,7 @@ fn main() {
     let height_scale = (WINDOW_HEIGHT as u32 / GRID_HEIGHT) as f64;
 
     let mut position: Position = (0, 0);
+    let mut mouse_down: bool = false;
 
     while let Some(e) = events.next(&mut window) {
         match e {
@@ -90,9 +88,14 @@ fn main() {
             Input::Update(update_args) => {
                 env.update(&update_args, &mut grid);
             },
+            Input::Press(button) => {
+                if button == Button::Mouse(MouseButton::Left) {
+                    mouse_down = true;
+                }
+            },
             Input::Release(button) => {
                 if button == Button::Mouse(MouseButton::Left) {
-                    grid.set_cell(position, get_creature(CreatureType::Plant));
+                    mouse_down = false;
                 }
             },
             Input::Move(motion) => {
@@ -103,6 +106,9 @@ fn main() {
                 }
             },
             _ => {}
+        }
+        if mouse_down {
+            grid.set_cell(position, get_creature(CreatureType::Plant));
         }
     }
 }
