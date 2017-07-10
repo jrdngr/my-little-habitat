@@ -1,11 +1,13 @@
 use std::mem;
-use std::iter;
+use std::collections::VecDeque;
+
 use super::utils::*;
 use super::creature::*;
 
 pub enum Action {
     Set(Position, Creature),
     Clear(Position),
+    Queue(Position),
     Idle,
 }
 
@@ -13,6 +15,7 @@ pub struct Grid {
     pub width: u32,
     pub height: u32,
     data: Vec<Creature>,
+    turn_queue: VecDeque<usize>,
 }
 
 impl Grid {
@@ -29,29 +32,39 @@ impl Grid {
             width: width,
             height: height,
             data: grid_data,
+            turn_queue: VecDeque::new()
         }
     }
 
     pub fn step(&mut self) {
-        for i in 0..self.data.len() {
-            let position = self.index_to_position(i);
-            let neighbors = self.get_neighbors(position);
-            let actions = self.data[i].act(neighbors);
-            for action in actions {
-                match action {
-                    Action::Set(pos, creature) => {
-                        let index = self.position_to_index(pos);
-                        if index >= self.data.len() {
-                            return;
+        let start_length = self.turn_queue.len();
+        let mut current = 0;
+
+        while current < start_length {
+            current += 1;
+            match self.turn_queue.pop_front() {
+                Some(index) => {
+                    let position = self.index_to_position(index);
+                    let neighbors = self.get_neighbors(position);
+                    let actions = self.data[index].act(neighbors);
+                    for action in actions {
+                        match action {
+                            Action::Set(pos, creature) => {
+                                self.set_cell(pos, creature);
+                            },
+                            Action::Clear(pos) => {
+                                let index = self.position_to_index(pos);
+                                mem::replace(&mut self.data[index], get(CreatureType::Empty));
+                            },
+                            Action::Queue(pos) => {
+                                let index = self.position_to_index(pos);
+                                self.turn_queue.push_back(index);
+                            },
+                            Action::Idle => {},
                         }
-                        mem::replace(&mut self.data[index], creature);
-                    },
-                    Action::Clear(pos) => {
-                        let index = self.position_to_index(pos);
-                        mem::replace(&mut self.data[index], get(CreatureType::Empty));
-                    },
-                    Action::Idle => {},
-                }
+                    }
+                },
+                None => break,
             }
         }
     }
@@ -72,6 +85,7 @@ impl Grid {
     pub fn set_cell(&mut self, position: Position, creature: Creature) {
         let index = self.position_to_index(position);
         mem::replace(&mut self.data[index], creature);
+        self.turn_queue.push_back(index);
     }
 
     pub fn position_to_index(&self, (x, y): Position) -> usize {
@@ -142,7 +156,7 @@ pub struct Neighbors {
 }
 
 impl Neighbors {
-    pub fn my_position(&self) -> Position {
+    pub fn pos(&self) -> Position {
         self.my_pos
     }
 

@@ -29,10 +29,10 @@ impl Environment {
         }
     }
 
-    fn render(&mut self, args: &RenderArgs, grid: &mut Grid) {
+    fn render(&mut self, args: &RenderArgs, grid: &mut Grid, gui_offset: f64) {
         use graphics::*;
 
-        let creature_width: f64 = args.width as f64 / grid.width as f64;
+        let creature_width: f64 = (args.width as f64 - gui_offset) / grid.width as f64;
         let creature_height: f64 = args.height as f64/ grid.height as f64;
         
         let square = rectangle::square(0.0, 0.0, creature_width);
@@ -51,18 +51,19 @@ impl Environment {
 }
 
 fn main() {
-    const WINDOW_WIDTH: u32 = 600;
-    const WINDOW_HEIGHT: u32 = 600;
+    const CANVAS_WIDTH: u32 = 600;
+    const CANVAS_HEIGHT: u32 = CANVAS_WIDTH;
+    const GUI_WIDTH: u32 = 300;
 
-    const GRID_WIDTH: u32 = WINDOW_WIDTH / 3;
-    const GRID_HEIGHT: u32 = WINDOW_HEIGHT / 3;
+    const GRID_WIDTH: u32 = 200;
+    const GRID_HEIGHT: u32 = GRID_WIDTH;
 
     let opengl = OpenGL::V3_2;
     let mut grid = Grid::new(GRID_WIDTH, GRID_HEIGHT);
 
     let mut window: Window = WindowSettings::new(
             "My Little Habitat",
-            [WINDOW_WIDTH, WINDOW_HEIGHT]
+            [CANVAS_WIDTH + GUI_WIDTH, CANVAS_HEIGHT]
         ).opengl(opengl)
          .exit_on_esc(true)
          .build()
@@ -74,16 +75,18 @@ fn main() {
     events.set_max_fps(60);
     events.set_ups(60);
 
-    let width_scale = (WINDOW_WIDTH as u32 / GRID_WIDTH) as f64;
-    let height_scale = (WINDOW_HEIGHT as u32 / GRID_HEIGHT) as f64;
+    let width_scale = (CANVAS_WIDTH as u32 / GRID_WIDTH) as f64;
+    let height_scale = (CANVAS_HEIGHT as u32 / GRID_HEIGHT) as f64;
 
     let mut position: Position = (0, 0);
     let mut mouse_down: bool = false;
 
+    let mut current_selection: CreatureType = CreatureType::Plant;
+
     while let Some(e) = events.next(&mut window) {
         match e {
             Input::Render(render_args) => {
-                env.render(&render_args, &mut grid);
+                env.render(&render_args, &mut grid, GUI_WIDTH as f64);
             },
             Input::Update(_) => {
                 env.update(&mut grid);
@@ -91,6 +94,16 @@ fn main() {
             Input::Press(button) => {
                 if button == Button::Mouse(MouseButton::Left) {
                     mouse_down = true;
+                }
+                match button {
+                    Button::Mouse(MouseButton::Left) => mouse_down = true,
+                    Button::Keyboard(Key::D1) => current_selection = CreatureType::Empty,
+                    Button::Keyboard(Key::D2) => current_selection = CreatureType::Wall,
+                    Button::Keyboard(Key::D3) => current_selection = CreatureType::Plant,
+                    Button::Keyboard(Key::D4) => current_selection = CreatureType::Snake,
+                    Button::Keyboard(Key::D5) => current_selection = CreatureType::Cow,
+                    Button::Keyboard(Key::D6) => current_selection = CreatureType::Virus,
+                    _ => {}
                 }
             },
             Input::Release(button) => {
@@ -100,15 +113,17 @@ fn main() {
             },
             Input::Move(motion) => {
                 if let Motion::MouseCursor(x, y) = motion {
-                    let grid_x = (x  / width_scale) as u32;
-                    let grid_y = (y  /  height_scale) as u32;
-                    position = (grid_x, grid_y);
+                    if x < CANVAS_WIDTH as f64 {
+                        let grid_x = (x  / width_scale) as u32;
+                        let grid_y = (y  /  height_scale) as u32;
+                        position = (grid_x, grid_y);
+                    } 
                 }
             },
             _ => {}
         }
         if mouse_down {
-            grid.set_cell(position, get(CreatureType::Plant));
+            grid.set_cell(position, get(current_selection));
         }
     }
 }
