@@ -23,7 +23,7 @@ impl Grid {
         let grid_size = width * height;
         let mut grid_data = Vec::with_capacity(grid_size as usize);
         
-        for i in 0..grid_size {
+        for _ in 0..grid_size {
             let creature = get(CreatureType::Empty);
             grid_data.push(creature);
         }
@@ -46,7 +46,7 @@ impl Grid {
                 Some(index) => {
                     let position = self.index_to_position(index);
                     let neighbors = self.get_neighbors(position);
-                    let actions = self.data[index].act(neighbors);
+                    let actions = self.data[index].act(&neighbors);
                     for action in actions {
                         match action {
                             Action::Set(pos, creature) => {

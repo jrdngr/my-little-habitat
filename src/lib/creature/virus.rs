@@ -11,10 +11,10 @@ pub fn new() -> Creature {
     }
 }
 
-fn parasite_action(neighbors: Neighbors) -> Vec<Action> {
+fn parasite_action(neighbors: &Neighbors) -> Vec<Action> {
 
     let plant_neighbors = neighbors.of_type(CreatureType::Plant);
-    if plant_neighbors.len() == 0 {
+    if plant_neighbors.is_empty() {
         return vec![Action::Clear(neighbors.pos())];
     }
 

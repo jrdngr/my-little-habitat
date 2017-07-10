@@ -11,18 +11,18 @@ pub fn new() -> Creature {
     }
 }
 
-fn cow_action(neighbors: Neighbors) -> Vec<Action> {
+fn cow_action(neighbors: &Neighbors) -> Vec<Action> {
 
     let snake_neighbors = neighbors.of_type(CreatureType::Snake);
-    if snake_neighbors.len() > 0 {
+    if !snake_neighbors.is_empty() {
         return vec![Action::Clear(neighbors.pos())];
     }
 
     let plant_neighbors = neighbors.of_type(CreatureType::Plant);
-    if plant_neighbors.len() == 0 {
+    if plant_neighbors.is_empty() {
         if random_percentage(25) {
             let empty_neighbors = neighbors.of_type(CreatureType::Empty);
-            if empty_neighbors.len() > 0 {
+            if !empty_neighbors.is_empty() {
                 let new_index = random_index(0, empty_neighbors.len());
                 let new_pos = empty_neighbors[new_index].1;
                 return vec![Action::Set(new_pos, get(CreatureType::Cow)), Action::Clear(neighbors.pos())];
@@ -43,6 +43,6 @@ fn cow_action(neighbors: Neighbors) -> Vec<Action> {
         else {
             result.push(Action::Queue(neighbors.pos()));
         }
-        return result;
+        result
     }
 }

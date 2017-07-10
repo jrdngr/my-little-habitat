@@ -11,10 +11,10 @@ pub fn new() -> Creature {
     }
 }
 
-fn plant_action(neighbors: Neighbors) -> Vec<Action> {
+fn plant_action(neighbors: &Neighbors) -> Vec<Action> {
 
     let empty_neighbors = neighbors.of_type(CreatureType::Empty);
-    if empty_neighbors.len() <= 0 {
+    if empty_neighbors.is_empty() {
         return vec![Action::Idle];
     }
     if random_percentage(10) {

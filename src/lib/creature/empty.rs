@@ -11,6 +11,6 @@ pub fn new() -> Creature {
 }
 
 #[allow(unused_variables)]
-fn empty_action(neighbors: Neighbors) -> Vec<Action> {
+fn empty_action(neighbors: &Neighbors) -> Vec<Action> {
     vec![Action::Idle]
 }

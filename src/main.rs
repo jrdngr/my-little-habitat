@@ -18,6 +18,19 @@ use lib::grid::*;
 use lib::utils::*;
 use lib::creature::*;
 
+/*
+ * Constants
+ */
+const CANVAS_WIDTH: u32 = 600;
+const CANVAS_HEIGHT: u32 = CANVAS_WIDTH;
+const GUI_WIDTH: u32 = 300;
+
+const GRID_WIDTH: u32 = 200;
+const GRID_HEIGHT: u32 = GRID_WIDTH;
+/*
+ *
+ */
+
 pub struct Environment {
     gl: GlGraphics,
 }
@@ -29,10 +42,10 @@ impl Environment {
         }
     }
 
-    fn render(&mut self, args: &RenderArgs, grid: &mut Grid, gui_offset: f64) {
+    fn render(&mut self, args: &RenderArgs, grid: &mut Grid) {
         use graphics::*;
 
-        let creature_width: f64 = (args.width as f64 - gui_offset) / grid.width as f64;
+        let creature_width: f64 = (args.width as f64 - GUI_WIDTH as f64) / grid.width as f64;
         let creature_height: f64 = args.height as f64/ grid.height as f64;
         
         let square = rectangle::square(0.0, 0.0, creature_width);
@@ -51,13 +64,6 @@ impl Environment {
 }
 
 fn main() {
-    const CANVAS_WIDTH: u32 = 600;
-    const CANVAS_HEIGHT: u32 = CANVAS_WIDTH;
-    const GUI_WIDTH: u32 = 300;
-
-    const GRID_WIDTH: u32 = 200;
-    const GRID_HEIGHT: u32 = GRID_WIDTH;
-
     let opengl = OpenGL::V3_2;
     let mut grid = Grid::new(GRID_WIDTH, GRID_HEIGHT);
 
@@ -86,7 +92,7 @@ fn main() {
     while let Some(e) = events.next(&mut window) {
         match e {
             Input::Render(render_args) => {
-                env.render(&render_args, &mut grid, GUI_WIDTH as f64);
+                env.render(&render_args, &mut grid);
             },
             Input::Update(_) => {
                 env.update(&mut grid);
