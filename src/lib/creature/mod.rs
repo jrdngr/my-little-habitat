@@ -1,7 +1,7 @@
 mod empty;
 mod wall;
 mod plant;
-mod snake;
+mod ivy;
 mod cow;
 mod virus;
 
@@ -22,7 +22,7 @@ pub enum CreatureType {
     Empty,
     Wall,
     Plant,
-    Snake,
+    Ivy,
     Cow,
     Virus,
 }
@@ -45,7 +45,7 @@ pub fn get(creature_type: CreatureType) -> Creature {
         CreatureType::Empty     => empty::new(),
         CreatureType::Wall      => wall::new(),
         CreatureType::Plant     => plant::new(),
-        CreatureType::Snake     => snake::new(),
+        CreatureType::Ivy       => ivy::new(),
         CreatureType::Cow       => cow::new(),
         CreatureType::Virus     => virus::new(),
     }
