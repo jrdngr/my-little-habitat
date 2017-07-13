@@ -24,9 +24,9 @@ use lib::selectionbox::{SelectionBox, get_buttons};
  */
 const CANVAS_WIDTH: u32 = 600;
 const CANVAS_HEIGHT: u32 = CANVAS_WIDTH;
-const GUI_WIDTH: f64 = 150f64;
+const GUI_WIDTH: f64 = 150.0;
 
-const BUTTON_HEIGHT: f64 = 30f64;
+const BUTTON_HEIGHT: f64 = 30.0;
 const SELECTION_COLOR: Color = [0.75, 0.75, 0.75, 1.0];
 
 const GRID_WIDTH: u32 = 200;
@@ -95,14 +95,14 @@ fn main() {
     let mut env = Environment::new(opengl);
     let mut events = Events::new(EventSettings::new());
 
-    events.set_max_fps(120);
-    events.set_ups(120);
+    events.set_max_fps(60);
+    events.set_ups(60);
 
     let width_scale = (CANVAS_WIDTH as u32 / GRID_WIDTH) as f64;
     let height_scale = (CANVAS_HEIGHT as u32 / GRID_HEIGHT) as f64;
 
     let mut position: Position = (0, 0);
-    let mut mouse_pos: (f64, f64) = (0f64, 0f64);
+    let mut mouse_pos: (f64, f64) = (0.0, 0.0);
     let mut mouse_down: bool = false;
 
     let mut current_selection: CreatureType = CreatureType::Plant;

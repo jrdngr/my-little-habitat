@@ -3,6 +3,9 @@ name = "my-little-habitat"
 version = "0.1.0"
 authors = ["Jordan Grace <jordan.t.grace@gmail.com>"]
 
+[profile.release]
+opt-level = 3
+
 [dependencies]
 piston = "0.32.0"
 piston2d-graphics = "0.21.1"

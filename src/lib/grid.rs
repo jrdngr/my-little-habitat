@@ -1,5 +1,6 @@
 use std::mem;
 use std::collections::VecDeque;
+use std::collections::HashSet;
 
 use super::utils::*;
 use super::creature::*;
@@ -17,7 +18,7 @@ pub struct Grid {
     pub width: u32,
     pub height: u32,
     data: Vec<Creature>,
-    turn_queue: VecDeque<usize>,
+    turn_queue: TurnQueue,
 }
 
 impl Grid {
@@ -34,7 +35,7 @@ impl Grid {
             width: width,
             height: height,
             data: grid_data,
-            turn_queue: VecDeque::new()
+            turn_queue: TurnQueue::new(),
         }
     }
 
@@ -54,7 +55,7 @@ impl Grid {
 
         while current < start_length {
             current += 1;
-            match self.turn_queue.pop_front() {
+            match self.turn_queue.pop() {
                 Some(index) => {
                     let position = self.index_to_position(index);
                     let neighbors = self.get_neighbors(position);
@@ -63,6 +64,7 @@ impl Grid {
                         match action {
                             Action::Set(pos, creature) => {
                                 self.set_cell(pos, creature);
+                                self.queue_neighbors(&neighbors);
                             },
                             Action::Clear(pos) => {
                                 let index = self.position_to_index(pos);
@@ -70,7 +72,7 @@ impl Grid {
                             },
                             Action::Queue(pos) => {
                                 let index = self.position_to_index(pos);
-                                self.turn_queue.push_back(index);
+                                self.turn_queue.push(index);
                             },
                             Action::QueueNeighbors => {
                                 self.queue_neighbors(&neighbors);
@@ -99,7 +101,7 @@ impl Grid {
     pub fn set_cell(&mut self, position: Position, creature: Creature) {
         let index = self.position_to_index(position);
         mem::replace(&mut self.data[index], creature);
-        self.turn_queue.push_back(index);
+        self.turn_queue.push(index);
     }
 
     pub fn position_to_index(&self, (x, y): Position) -> usize {
@@ -166,11 +168,48 @@ impl Grid {
     fn queue_neighbors(&mut self, neighbors: &Neighbors) {
         for &(_, pos) in neighbors.all() {
             let index = self.position_to_index(pos);
-            self.turn_queue.push_back(index);
+            self.turn_queue.push(index);
+        }
+    }
+}
+
+pub struct TurnQueue {
+    queue: VecDeque<usize>,
+    element_set: HashSet<usize>,
+}
+
+impl TurnQueue {
+    pub fn new() -> TurnQueue {
+        TurnQueue {
+            queue: VecDeque::new(),
+            element_set: HashSet::new(),
+        }
+    }
+    
+    pub fn push(&mut self, index: usize) {
+        if !self.element_set.contains(&index) {
+            self.element_set.insert(index);
+            self.queue.push_back(index);
         }
     }
 
+    pub fn pop(&mut self) -> Option<usize> {
+        match self.queue.pop_front() {
+            Some(n) => {
+                self.element_set.remove(&n);
+                return Some(n);
+            },
+            None => None
+        }
+    }
 
+    pub fn len(&self) -> usize {
+        self.queue.len()
+    }
+
+    pub fn contains(&self, index: usize) -> bool {
+        self.element_set.contains(&index)
+    }
 }
 
 pub struct ColorEnumerator<'a> {
