@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use super::utils::*;
 use super::creature::*;
 
+
 pub enum Action {
     Set(Position, Creature),
     Clear(Position),
@@ -23,7 +24,7 @@ impl Grid {
     pub fn new(width: u32, height: u32) -> Self {
         let grid_size = width * height;
         let mut grid_data = Vec::with_capacity(grid_size as usize);
-        
+
         for _ in 0..grid_size {
             let creature = get(CreatureType::Empty);
             grid_data.push(creature);
@@ -83,14 +84,13 @@ impl Grid {
         }
     }
 
-    pub fn get_color_grid(&self) -> Vec<Color> {
-        let grid_size = self.width as usize * self.height as usize;
-        let mut color_grid = Vec::with_capacity(grid_size);
-        for i in 0..grid_size {
-            color_grid.push(self.data[i].color);
+    pub fn color_enumerator(&self) -> ColorEnumerator {
+        ColorEnumerator {
+            current_index: 0,
+            data: &self.data,
         }
-        color_grid
     }
+
 
     pub fn get_cell(&mut self, position: Position) -> &Creature {
         &self.data[self.position_to_index(position)]
@@ -167,6 +167,27 @@ impl Grid {
         for &(_, pos) in neighbors.all() {
             let index = self.position_to_index(pos);
             self.turn_queue.push_back(index);
+        }
+    }
+
+
+}
+
+pub struct ColorEnumerator<'a> {
+    current_index: usize,
+    data: &'a Vec<Creature>,
+}
+
+impl<'a> Iterator for ColorEnumerator<'a> {
+    type Item = (usize, Color);
+    fn next(&mut self) -> Option<(usize, Color)> {
+        let creature = self.data.get(self.current_index);
+        self.current_index += 1;
+        match creature {
+            Some(cr) => {
+                return Some((self.current_index - 1, cr.color));
+            }
+            None => None
         }
     }
 }

@@ -60,7 +60,7 @@ impl Environment {
         let buttons = &self.buttons;
         
         self.gl.draw(args.viewport(), |c, gl|{
-            for (i, color) in grid.get_color_grid().into_iter().enumerate() {
+            for (i, color) in grid.color_enumerator() {
                 let (x, y) = grid.index_to_position(i);
                 let transform = c.transform.trans(x as f64 * creature_width, y as f64 * creature_height);
                 rectangle(color, square, transform, gl);
@@ -95,8 +95,8 @@ fn main() {
     let mut env = Environment::new(opengl);
     let mut events = Events::new(EventSettings::new());
 
-    events.set_max_fps(60);
-    events.set_ups(60);
+    events.set_max_fps(120);
+    events.set_ups(120);
 
     let width_scale = (CANVAS_WIDTH as u32 / GRID_WIDTH) as f64;
     let height_scale = (CANVAS_HEIGHT as u32 / GRID_HEIGHT) as f64;
