@@ -6,6 +6,7 @@ pub fn new() -> Creature {
         creature_type: CreatureType::Empty,
         color: [0.0, 0.0, 0.0, 1.0],
         energy: 0,
+        sleep: 0,
         properties: HashMap::new(),
         action: empty_action,
     }

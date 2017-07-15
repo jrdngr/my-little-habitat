@@ -4,9 +4,10 @@ use ::lib::creature::*;
 
 pub fn new() -> Creature {
     Creature {
-        creature_type: CreatureType::Ivy,
+        creature_type: CreatureType::Vine,
         color: [0.8, 1.0, 0.4, 1.0],
         energy: 0,
+        sleep: 0,
         properties: HashMap::new(),
         action: ivy_action,
     }
@@ -22,5 +23,5 @@ fn ivy_action(myself: &mut Creature, neighbors: &Neighbors) -> Vec<Action> {
     let new_index = random_index(0, empty_neighbors.len());
     let new_pos = empty_neighbors[new_index].1;
 
-    vec![Action::Set(new_pos, get(CreatureType::Ivy))]
+    vec![Action::Set(new_pos, get(CreatureType::Vine))]
 }

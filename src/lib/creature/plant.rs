@@ -14,6 +14,7 @@ pub fn new() -> Creature {
         creature_type: CreatureType::Plant,
         color: [0.0, 0.5, 0.0, 1.0],
         energy: 0,
+        sleep: 0,
         properties: properties,
         action: plant_action,
     }
@@ -21,18 +22,11 @@ pub fn new() -> Creature {
 
 fn plant_action(myself: &mut Creature, neighbors: &Neighbors) -> Vec<Action> {
 
-    let energy_per_tick: i64 = match myself.properties.get(ENERGY_PER_TICK) {
-        Some(&Property::Integer(n)) => n,
-        _ => 1,
-    };
-    let energy_to_split = match myself.properties.get(ENERGY_PER_TICK){
-        Some(&Property::Integer(n)) => n,
-        _ => 100,
-    };
+    let (energy_per_tick, energy_to_split) = get_variables(&myself.properties);
 
-    if myself.energy < energy_to_split as u64 {
-        if random_percentage(2) {
-            myself.energy += energy_per_tick as u64;
+    if myself.energy < energy_to_split {
+        if random_percentage(5) {
+            myself.energy += energy_per_tick * random_int(0, 3);
         }
         return vec![Action::Idle, Action::Queue(neighbors.pos())];
     } else {
@@ -46,4 +40,17 @@ fn plant_action(myself: &mut Creature, neighbors: &Neighbors) -> Vec<Action> {
         vec![Action::Set(new_pos, get(CreatureType::Plant)), Action::Queue(neighbors.pos())]
     }
 
+}
+
+fn get_variables(properties: &HashMap<String, Property>) -> (i64, i64) {
+    let energy_per_tick: i64 = match properties.get(ENERGY_PER_TICK) {
+        Some(&Property::Integer(n)) => n,
+        _ => 1,
+    };
+    let energy_to_split = match properties.get(ENERGY_PER_TICK){
+        Some(&Property::Integer(n)) => n,
+        _ => 100,
+    };
+
+    (energy_per_tick, energy_to_split)
 }

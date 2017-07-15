@@ -29,20 +29,26 @@ pub fn get_buttons() -> Vec<SelectionBox> {
     );
     buttons.push(
         SelectionBox {
+            creature_type: CreatureType::DeadPlant,
+            color: get(CreatureType::DeadPlant).color,
+        }
+    );
+    buttons.push(
+        SelectionBox {
             creature_type: CreatureType::Cow,
             color: get(CreatureType::Cow).color,
         }
     );
     buttons.push(
         SelectionBox {
-            creature_type: CreatureType::Ivy,
-            color: get(CreatureType::Ivy).color,
+            creature_type: CreatureType::Vine,
+            color: get(CreatureType::Vine).color,
         }
     );
     buttons.push(
         SelectionBox {
-            creature_type: CreatureType::Virus,
-            color: get(CreatureType::Virus).color,
+            creature_type: CreatureType::Parasite,
+            color: get(CreatureType::Parasite).color,
         }
     );
 

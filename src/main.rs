@@ -121,12 +121,6 @@ fn main() {
                 }
                 match button {
                     Button::Mouse(MouseButton::Left) => mouse_down = true,
-                    Button::Keyboard(Key::D1) => current_selection = CreatureType::Empty,
-                    Button::Keyboard(Key::D2) => current_selection = CreatureType::Wall,
-                    Button::Keyboard(Key::D3) => current_selection = CreatureType::Plant,
-                    Button::Keyboard(Key::D4) => current_selection = CreatureType::Ivy,
-                    Button::Keyboard(Key::D5) => current_selection = CreatureType::Cow,
-                    Button::Keyboard(Key::D6) => current_selection = CreatureType::Virus,
                     Button::Keyboard(Key::Space) => grid.reset(),
                     _ => {}
                 }
