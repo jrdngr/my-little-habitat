@@ -6,12 +6,13 @@ pub fn new() -> Creature {
     Creature {
         creature_type: CreatureType::Cow,
         color: [0.0, 0.0, 1.0, 1.0],
+        energy: 0,
         properties: HashMap::new(),
         action: cow_action,
     }
 }
 
-fn cow_action(neighbors: &Neighbors) -> Vec<Action> {
+fn cow_action(myself: &mut Creature, neighbors: &Neighbors) -> Vec<Action> {
 
     let plant_neighbors = neighbors.of_type(CreatureType::Plant);
     if plant_neighbors.is_empty() {

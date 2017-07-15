@@ -8,7 +8,8 @@ mod virus;
 use std::collections::HashMap;
 
 use super::utils::*;
-use super::grid::{Action, Neighbors};
+use super::grid::Action;
+use super::grid::neighbors::Neighbors;
 
 pub enum Property {
     Integer(i64),
@@ -30,13 +31,14 @@ pub enum CreatureType {
 pub struct Creature {
     pub creature_type: CreatureType,
     pub color: Color,
+    pub energy: u64,
     pub properties: HashMap<String, Property>,
-    action: fn(&Neighbors) -> Vec<Action>,
+    action: fn(&mut Creature, &Neighbors) -> Vec<Action>,
 }
 
 impl Creature {
-    pub fn act(&self, neighbors: &Neighbors) -> Vec<Action> {
-        (self.action)(neighbors)
+    pub fn act(&mut self, neighbors: &Neighbors) -> Vec<Action> {
+        (self.action)(self, neighbors)
     }
 }
 

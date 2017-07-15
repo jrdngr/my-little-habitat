@@ -1,10 +1,12 @@
+pub mod turn_queue;
+pub mod neighbors;
+
 use std::mem;
-use std::collections::VecDeque;
-use std::collections::HashSet;
 
 use super::utils::*;
 use super::creature::*;
-
+use turn_queue::TurnQueue;
+use neighbors::Neighbors;
 
 pub enum Action {
     Set(Position, Creature),
@@ -173,45 +175,6 @@ impl Grid {
     }
 }
 
-pub struct TurnQueue {
-    queue: VecDeque<usize>,
-    element_set: HashSet<usize>,
-}
-
-impl TurnQueue {
-    pub fn new() -> TurnQueue {
-        TurnQueue {
-            queue: VecDeque::new(),
-            element_set: HashSet::new(),
-        }
-    }
-    
-    pub fn push(&mut self, index: usize) {
-        if !self.element_set.contains(&index) {
-            self.element_set.insert(index);
-            self.queue.push_back(index);
-        }
-    }
-
-    pub fn pop(&mut self) -> Option<usize> {
-        match self.queue.pop_front() {
-            Some(n) => {
-                self.element_set.remove(&n);
-                return Some(n);
-            },
-            None => None
-        }
-    }
-
-    pub fn len(&self) -> usize {
-        self.queue.len()
-    }
-
-    pub fn contains(&self, index: usize) -> bool {
-        self.element_set.contains(&index)
-    }
-}
-
 pub struct ColorEnumerator<'a> {
     current_index: usize,
     data: &'a Vec<Creature>,
@@ -231,37 +194,3 @@ impl<'a> Iterator for ColorEnumerator<'a> {
     }
 }
 
-pub struct Neighbors {
-    my_pos: Position,
-    neighbors: Vec<(CreatureType, Position)>,
-}
-
-impl Neighbors {
-    pub fn pos(&self) -> Position {
-        self.my_pos
-    }
-
-    pub fn get_neighbor(&self, index: usize) -> (CreatureType, Position) {
-        self.neighbors[index]
-    }
-
-    pub fn all(&self) -> &Vec<(CreatureType, Position)> {
-        &self.neighbors    
-    }
-
-    pub fn of_types(&self, creature_types: &[CreatureType]) -> Vec<(CreatureType, Position)> {
-        let mut creature_list = Vec::new();
-        for i in 0..self.neighbors.len() {
-            for creature_type in creature_types {
-                if self.neighbors[i].0 == *creature_type {
-                    creature_list.push(self.neighbors[i])
-                }
-            }
-        }
-        creature_list
-    }
-
-    pub fn of_type(&self, creature_type: CreatureType) -> Vec<(CreatureType, Position)> {
-        self.of_types(&[creature_type])
-    }
-}
