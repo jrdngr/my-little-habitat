@@ -5,7 +5,7 @@ use ::lib::creature::*;
 pub fn new() -> Creature {
     Creature {
         creature_type: CreatureType::Parasite,
-        color: [1.0, 0.25, 0.0, 1.0],
+        color: [1.0, 0.0, 0.0, 1.0],
         energy: 0,
         sleep: 0,
         properties: HashMap::new(),

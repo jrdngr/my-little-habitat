@@ -5,15 +5,15 @@ use ::lib::creature::*;
 pub fn new() -> Creature {
     Creature {
         creature_type: CreatureType::Vine,
-        color: [0.8, 1.0, 0.4, 1.0],
+        color: [1.0, 0.0, 1.0, 1.0],
         energy: 0,
         sleep: 0,
         properties: HashMap::new(),
-        action: ivy_action,
+        action: vine_action,
     }
 }
 
-fn ivy_action(myself: &mut Creature, neighbors: &Neighbors) -> Vec<Action> {
+fn vine_action(myself: &mut Creature, neighbors: &Neighbors) -> Vec<Action> {
 
     let empty_neighbors = neighbors.of_type(CreatureType::Empty);
     if empty_neighbors.is_empty() {
