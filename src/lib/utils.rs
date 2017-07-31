@@ -1,9 +1,6 @@
 extern crate rand;
 use rand::Rng;
 
-pub type Color = [f32; 4];
-pub type Position = (u32, u32);
-
 pub fn random_int(min: i64, max: i64) -> i64 {
     rand::thread_rng().gen_range(min, max)
 }
