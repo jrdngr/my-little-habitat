@@ -19,7 +19,7 @@ fn main() {
     **grid[(3, 2)].borrow_mut() = 3;
     **grid[(1, 1)].borrow_mut() = 2;
 
-    match grid.get_mut(2, 4) {
+    match grid.get_mut_op(2, 4) {
         Some(mut cell)   => **cell = 7,
         None         => {},
     }
