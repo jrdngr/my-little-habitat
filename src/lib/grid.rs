@@ -69,6 +69,13 @@ impl <T> Grid<T> {
             None      => None,
         }
     }
+
+    pub fn iter(&self) -> GridIterator<T> {
+        GridIterator {
+            data: &self.data,
+            current: 0,
+        }
+    }
 }
 
 /*  
@@ -98,6 +105,36 @@ impl <T> Index<(u32, u32)> for Grid<T> {
         &self.data[self.coordinates_to_index(x, y)]
     }
 }
+
+impl <T> IntoIterator for Grid<T> {
+    type Item = Rc<RefCell<T>>;
+    type IntoIter = ::std::vec::IntoIter<Rc<RefCell<T>>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+} 
+
+pub struct GridIterator<'a, T: 'a> {
+    data: &'a Vec<Rc<RefCell<T>>>,
+    current: usize,
+}
+
+impl <'a, T> Iterator for GridIterator<'a, T> {
+    type Item = Rc<RefCell<T>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current >= self.data.len() {
+            None
+        } else {
+            self.current += 1;
+            Some(self.data[self.current - 1].clone())
+        }
+    }
+}
+
+
+
 
 
 

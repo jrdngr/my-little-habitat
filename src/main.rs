@@ -4,35 +4,33 @@ extern crate rand;
 
 mod lib;
 
-use lib::grid::Grid;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+use lib::grid::Grid;
+use lib::gridcell::*;
+
 fn main() {
-    let mut data = Vec::new(); 
+    let mut data: Vec<Rc<RefCell<Box<GridCell>>>> = Vec::new(); 
     for _ in 0..25 {
-        data.push(Rc::new(RefCell::new(Box::new(0))));
+        data.push(Rc::new(RefCell::new(Box::new(Zeero::new()))));
     }
     let grid = Grid::with_data(5, 5, data);
 
-
-    **grid[(3, 2)].borrow_mut() = 3;
-    **grid[(1, 1)].borrow_mut() = 2;
-
-    match grid.get_mut_op(2, 4) {
-        Some(mut cell)   => **cell = 7,
-        None         => {},
+    for (i, cell) in grid.iter().enumerate() {
+        if i % 5 == 0 { print!("\n") };
+        cell.borrow().display();
     }
 
-    match grid.get_rc(2, 3).clone() {
-        Some(cell)   => **cell.borrow_mut() = 5,
-        None         => {},
+    {
+        let what = grid[(1, 1)].clone();
+        what.borrow_mut().set_char('1');
     }
 
-    for x in 0..grid.height() {
-        for y in 0..grid.width() {
-            print!("{:?}", grid[(x, y)].borrow());
-        }
-        print!("\n");
+    println!();
+
+    for (i, cell) in grid.iter().enumerate() {
+        if i % 5 == 0 { print!("\n") };
+        cell.borrow().display();
     }
 }
