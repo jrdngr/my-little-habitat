@@ -19,7 +19,7 @@ use opengl_graphics::{ GlGraphics, OpenGL };
 
 use lib::type_aliases::*;
 use lib::grid::Grid;
-use lib::gridcell::*;
+use lib::gridcell::LayeredGridCell;
 use ui::selection_box::SelectionBox;
 use ui::selection_box;
 use lib::organisms;
@@ -47,7 +47,7 @@ impl Environment {
         }
     }
 
-    fn render(&mut self, args: &RenderArgs, grid: &mut Grid<RefCell<GridCell>>) {
+    fn render(&mut self, args: &RenderArgs, grid: &mut Grid<RefCell<LayeredGridCell>>) {
         use graphics::*;
 
         let organism_width: f64 = (args.width as f64 - GUI_WIDTH) / grid.width() as f64;
@@ -59,12 +59,11 @@ impl Environment {
         let buttons = &self.buttons;
         
         self.gl.draw(args.viewport(), |c, gl|{
-            for x in 0..grid.height() {
-                for y in 0..grid.width() {
-                    let color = grid[(x, y)].borrow().color;
-                    let transform = c.transform.trans(x as f64 * organism_width, y as f64 * organism_height);
-                    rectangle(color, square, transform, gl);
-                }
+            for (i, cell) in grid.iter().enumerate() {
+                let (x, y) = grid.index_to_coordinates(i);
+                let color = cell.borrow().get_color();
+                let transform = c.transform.trans(x as f64 * organism_width, y as f64 * organism_height);
+                rectangle(color, square, transform, gl);
             }
 
             for (i, button) in buttons.iter().enumerate() {
@@ -74,14 +73,18 @@ impl Environment {
         });
     }
 
-    fn update(&mut self, grid: &mut Grid<RefCell<GridCell>>) {
-        
+    fn update(&mut self, grid: &mut Grid<RefCell<LayeredGridCell>>) {
+        for x in 0..grid.width() {
+            for y in 0..grid.height() {
+                organisms::act(grid, (x, y, 0));
+            }
+        }
     }
 }
 
 fn main() {
     let opengl = OpenGL::V3_2;
-    let mut grid: Grid<RefCell<GridCell>> = Grid::new(GRID_WIDTH, GRID_HEIGHT);
+    let mut grid: Grid<RefCell<LayeredGridCell>> = Grid::new(GRID_WIDTH, GRID_HEIGHT);
 
     let mut window: Window = WindowSettings::new(
             "My Little Habitat",
@@ -149,7 +152,9 @@ fn main() {
         }
         if mouse_down {
             if mouse_pos.0 < CANVAS_WIDTH as f64 {
-                grid[(pos_x, pos_y)].borrow_mut().set(organisms::get(&current_selection));
+                if let Some(organism) = organisms::get(&current_selection) {
+                    grid[(pos_x, pos_y)].borrow_mut().set_layer(organism.layer, organism);
+                } 
             }
         }
     }   
