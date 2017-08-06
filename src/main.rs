@@ -19,10 +19,10 @@ use opengl_graphics::{ GlGraphics, OpenGL };
 
 use lib::type_aliases::*;
 use lib::grid::Grid;
-use lib::gridcell::LayeredGridCell;
+use lib::grid::gridcell::LayeredGridCell;
+use lib::organisms;
 use ui::selection_box::SelectionBox;
 use ui::selection_box;
-use lib::organisms;
 
 const CANVAS_WIDTH: u32 = 600;
 const CANVAS_HEIGHT: u32 = CANVAS_WIDTH;

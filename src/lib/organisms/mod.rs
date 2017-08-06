@@ -2,7 +2,7 @@ pub mod plant;
 
 use std::cell::RefCell;
 
-use ::lib::gridcell::{ GridCell, LayeredGridCell };
+use ::lib::grid::gridcell::{ GridCell, LayeredGridCell };
 use ::lib::grid::Grid;
 
 pub const EMPTY: &'static str = "empty";

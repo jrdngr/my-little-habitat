@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use ::lib::grid::Grid;
-use ::lib::gridcell::{ LayeredGridCell, GridCell };
+use ::lib::grid::gridcell::{ LayeredGridCell, GridCell };
 use ::lib::organisms::PLANT;
 
 pub fn new_plant() -> GridCell {
