@@ -1,7 +1,8 @@
 use std::collections::VecDeque;
 use std::collections::HashSet;
 
-type QueueElement = (u32, u32, u32);
+type Layer = u32;
+type QueueElement = (u32, u32, Layer);
 
 pub struct TurnQueue {
     queue: VecDeque<QueueElement>,

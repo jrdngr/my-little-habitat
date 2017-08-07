@@ -59,7 +59,7 @@ impl LayeredGridCell {
         self.layers.get(&layer)
     }
 
-    pub fn set_layer(&mut self, layer: u32, new_grid_cell: GridCell) {
-        self.layers.insert(layer, new_grid_cell);
+    pub fn set(&mut self, new_grid_cell: GridCell) {
+        self.layers.insert(new_grid_cell.layer, new_grid_cell);
     }
 }

@@ -4,6 +4,7 @@ use std::cell::RefCell;
 
 use ::lib::grid::gridcell::{ GridCell, LayeredGridCell };
 use ::lib::grid::Grid;
+use ::lib::grid::grid_manager::GridManager;
 
 pub const EMPTY: &'static str = "empty";
 pub const PLANT: &'static str = "plant";
@@ -25,10 +26,10 @@ pub fn get(organism_id: &String) -> Option<GridCell> {
     }
 }
 
-pub fn act(grid: &mut Grid<RefCell<LayeredGridCell>>, (x, y, layer): (u32, u32, u32)) {
-    match grid[(x, y)].borrow_mut().get_layer(layer) {
+pub fn act(grid_manager: &GridManager, (x, y, layer): (u32, u32, u32)) {
+    match grid_manager.get(x, y).borrow_mut().get_layer(layer) {
         Some(cell)  => match cell.id.as_ref() {
-            PLANT   => plant::plant_action(grid, (x, y)),
+            PLANT   => plant::plant_action(grid_manager, (x, y)),
             _       => {},
         },
         None        => {},

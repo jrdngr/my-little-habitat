@@ -9,8 +9,6 @@ extern crate opengl_graphics;
 mod lib;
 mod ui;
 
-use std::cell::RefCell;
-
 use piston::window::WindowSettings;
 use piston::event_loop::*;
 use piston::input::*;
@@ -18,8 +16,7 @@ use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
 
 use lib::type_aliases::*;
-use lib::grid::Grid;
-use lib::grid::gridcell::LayeredGridCell;
+use lib::grid::grid_manager::GridManager;
 use lib::organisms;
 use ui::selection_box::SelectionBox;
 use ui::selection_box;
@@ -47,11 +44,11 @@ impl Environment {
         }
     }
 
-    fn render(&mut self, args: &RenderArgs, grid: &mut Grid<RefCell<LayeredGridCell>>) {
+    fn render(&mut self, args: &RenderArgs, grid_manager: &GridManager) {
         use graphics::*;
 
-        let organism_width: f64 = (args.width as f64 - GUI_WIDTH) / grid.width() as f64;
-        let organism_height: f64 = args.height as f64/ grid.height() as f64;
+        let organism_width: f64 = (args.width as f64 - GUI_WIDTH) / GRID_WIDTH as f64;
+        let organism_height: f64 = args.height as f64/ GRID_HEIGHT as f64;
         
         let square = rectangle::square(0.0, 0.0, organism_width);
 
@@ -59,9 +56,8 @@ impl Environment {
         let buttons = &self.buttons;
         
         self.gl.draw(args.viewport(), |c, gl|{
-            for (i, cell) in grid.iter().enumerate() {
-                let (x, y) = grid.index_to_coordinates(i);
-                let color = cell.borrow().get_color();
+            
+            for ((x, y), color) in grid_manager.color_enumerator() {
                 let transform = c.transform.trans(x as f64 * organism_width, y as f64 * organism_height);
                 rectangle(color, square, transform, gl);
             }
@@ -73,19 +69,16 @@ impl Environment {
         });
     }
 
-    fn update(&mut self, grid: &mut Grid<RefCell<LayeredGridCell>>) {
-        for x in 0..grid.width() {
-            for y in 0..grid.height() {
-                organisms::act(grid, (x, y, 0));
-            }
-        }
+    fn update(&mut self, grid_manager: &mut GridManager) {
+        grid_manager.step();
     }
 }
 
 fn main() {
     let opengl = OpenGL::V3_2;
-    let mut grid: Grid<RefCell<LayeredGridCell>> = Grid::new(GRID_WIDTH, GRID_HEIGHT);
 
+    let mut grid_manager = GridManager::new(GRID_WIDTH, GRID_HEIGHT);           
+    
     let mut window: Window = WindowSettings::new(
             "My Little Habitat",
             [CANVAS_WIDTH + GUI_WIDTH as u32, CANVAS_HEIGHT]
@@ -113,10 +106,10 @@ fn main() {
     while let Some(e) = events.next(&mut window) {
         match e {
             Input::Render(render_args) => {
-                env.render(&render_args, &mut grid);
+                env.render(&render_args, &grid_manager);
             },
             Input::Update(_) => {
-                env.update(&mut grid);
+                env.update(&mut grid_manager);
             },
             Input::Press(button) => {
                 if button == Button::Mouse(MouseButton::Left) {
@@ -124,7 +117,7 @@ fn main() {
                 }
                 match button {
                     Button::Mouse(MouseButton::Left) => mouse_down = true,
-                    Button::Keyboard(Key::Space) => grid = Grid::new(GRID_WIDTH, GRID_HEIGHT),
+                    Button::Keyboard(Key::Space) => grid_manager = GridManager::new(GRID_WIDTH, GRID_HEIGHT),
                     _ => {}
                 }
             },
@@ -153,7 +146,8 @@ fn main() {
         if mouse_down {
             if mouse_pos.0 < CANVAS_WIDTH as f64 {
                 if let Some(organism) = organisms::get(&current_selection) {
-                    grid[(pos_x, pos_y)].borrow_mut().set_layer(organism.layer, organism);
+                    grid_manager.add_to_queue(pos_x, pos_y, organism.layer);
+                    grid_manager.set(pos_x, pos_y, organism);
                 } 
             }
         }

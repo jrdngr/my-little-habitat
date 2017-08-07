@@ -1,5 +1,6 @@
 pub mod gridcell;
 pub mod turn_queue;
+pub mod grid_manager;
 
 use std::ops::Index;
 
