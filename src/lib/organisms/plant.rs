@@ -1,9 +1,9 @@
 use ::lib::grid::grid_manager::GridManager;
 use ::lib::grid::gridcell::{ GridCell };
-use ::lib::organisms::PLANT;
+use ::lib::organisms::OrganismType;
 
 pub fn new_plant() -> GridCell {
-    GridCell::new(String::from(PLANT), [0.0, 0.75, 0.0, 1.0], 0)
+    GridCell::new(OrganismType::Plant, [0.0, 0.75, 0.0, 1.0], 0)
 }
 
 pub fn plant_action(grid_manager: &mut GridManager, (x, y): (u32, u32)) {

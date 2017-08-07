@@ -1,8 +1,9 @@
 use ::lib::organisms;
+use ::lib::organisms::OrganismType;
 use ::lib::type_aliases::*;
 
 pub struct SelectionBox {
-    pub organism_id: String,
+    pub organism_type: OrganismType,
     pub color: Color,
 }
 
@@ -11,7 +12,7 @@ pub fn get_buttons() -> Vec<SelectionBox> {
     
     buttons.push(
         SelectionBox {
-            organism_id: String::from(organisms::PLANT),
+            organism_type: OrganismType::Plant,
             color: organisms::plant::new_plant().color,
         }
     );

@@ -18,6 +18,7 @@ use opengl_graphics::{ GlGraphics, OpenGL };
 use lib::type_aliases::*;
 use lib::grid::grid_manager::GridManager;
 use lib::organisms;
+use lib::organisms::OrganismType;
 use ui::selection_box::SelectionBox;
 use ui::selection_box;
 
@@ -101,7 +102,7 @@ fn main() {
     let mut mouse_pos: (f64, f64) = (0.0, 0.0);
     let mut mouse_down: bool = false;
 
-    let mut current_selection: String = String::from(organisms::PLANT);
+    let mut current_selection: OrganismType = OrganismType::Plant;
 
     while let Some(e) = events.next(&mut window) {
         match e {
@@ -127,7 +128,7 @@ fn main() {
                     if mouse_pos.0 > CANVAS_WIDTH as f64{
                         let index = (mouse_pos.1 / BUTTON_HEIGHT) as usize;
                         if index < env.buttons.len() {
-                            current_selection = env.buttons[index].organism_id.clone();
+                            current_selection = env.buttons[index].organism_type;
                         }
                     }
                 }
@@ -145,7 +146,7 @@ fn main() {
         }
         if mouse_down {
             if mouse_pos.0 < CANVAS_WIDTH as f64 {
-                if let Some(organism) = organisms::get(&current_selection) {
+                if let Some(organism) = organisms::get(current_selection) {
                     grid_manager.add_to_queue(pos_x, pos_y, organism.layer);
                     grid_manager.set(pos_x, pos_y, organism);
                 } 

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use ::lib::type_aliases::Color;
+use ::lib::organisms::OrganismType;
 
 pub const EMPTY_COLOR: Color = [0.0, 0.0, 0.0, 1.0];
 
@@ -13,24 +14,24 @@ pub enum Property {
 }
 
 pub struct GridCell {
-    pub id: String,
+    pub organism_type: OrganismType,
     pub color: Color,
     pub layer: u32,
     pub properties: HashMap<String, Property>,
 }
 
 impl GridCell {
-    pub fn new(id: String, color: Color, layer: u32) -> Self {
+    pub fn new(organism_type: OrganismType, color: Color, layer: u32) -> Self {
         Self { 
-            id: id,
+            organism_type: organism_type,
             color: color,
             layer: layer,
             properties: HashMap::new(),
         }
     }
 
-    pub fn with_properties(id: String, color: Color, layer: u32, properties: HashMap<String, Property>) -> Self {
-        Self { id, color, layer, properties }
+    pub fn with_properties(organism_type: OrganismType, color: Color, layer: u32, properties: HashMap<String, Property>) -> Self {
+        Self { organism_type, color, layer, properties }
     }
 }
 
