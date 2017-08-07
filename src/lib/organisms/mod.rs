@@ -26,12 +26,19 @@ pub fn get(organism_id: &String) -> Option<GridCell> {
     }
 }
 
-pub fn act(grid_manager: &GridManager, (x, y, layer): (u32, u32, u32)) {
-    match grid_manager.get(x, y).borrow_mut().get_layer(layer) {
-        Some(cell)  => match cell.id.as_ref() {
-            PLANT   => plant::plant_action(grid_manager, (x, y)),
-            _       => {},
-        },
-        None        => {},
+pub fn act(grid_manager: &mut GridManager, (x, y, layer): (u32, u32, u32)) {
+    let mut cell_type = None;
+    if let Some(cell) = grid_manager.get(x, y).borrow_mut().get_layer(layer) {
+        match cell.id.as_ref() {
+            PLANT => cell_type = Some(PLANT),
+            _ => {},
+        }
+    }
+
+    if let Some(id) = cell_type {
+        match id {
+            PLANT => plant::plant_action(grid_manager, (x, y)),
+            _     => {},
+        }
     }
 }

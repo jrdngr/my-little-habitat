@@ -40,9 +40,10 @@ impl GridManager {
 
     pub fn step(&mut self) {
         for _ in 0..self.turn_queue.len() {
-            match self.turn_queue.pop() {
+            let next = self.turn_queue.pop();
+            match next {
                 Some(position) => {
-                    organisms::act(&self, position);
+                    organisms::act(self, position);
                 },
                 None => return,
             }
