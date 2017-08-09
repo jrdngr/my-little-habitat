@@ -1,13 +1,17 @@
 use std::cell::RefCell;
+use std::cmp;
 
 use ::lib::type_aliases::Color;
 use ::lib::grid::Grid;
 use ::lib::grid::gridcell::{ GridCell, LayeredGridCell };
 use ::lib::grid::turn_queue::TurnQueue;
 use ::lib::organisms;
+use ::lib::organisms::OrganismType;
+
+pub type GridType = RefCell<LayeredGridCell>;
 
 pub struct GridManager {
-    grid: Grid<RefCell<LayeredGridCell>>,
+    grid: Grid<GridType>,
     turn_queue: TurnQueue,
 }
 
@@ -23,7 +27,7 @@ impl GridManager {
         self.turn_queue.push((x, y, layer));
     }
 
-    pub fn get(&self, x: u32, y: u32) -> &RefCell<LayeredGridCell> {
+    pub fn get(&self, x: u32, y: u32) -> &GridType {
         &self.grid[(x, y)]
     }
 
@@ -49,11 +53,28 @@ impl GridManager {
             }
         }
     }
+
+    pub fn get_neighborhood_coordinates(&self, (x, y): (u32, u32), radius: u32) -> Vec<(u32, u32)> {
+        let mut result = Vec::new();
+        let x_min = x.saturating_sub(radius);
+        let x_max = cmp::min(x + radius, self.grid.width() - 1) + 1;
+        let y_min = y.saturating_sub(radius);
+        let y_max = cmp::min(y + radius, self.grid.height() - 1) + 1;
+
+        for j in y_min..y_max {
+            for i in x_min..x_max {
+                result.push((i, j));
+            }
+        }
+
+        return result;
+    }
+
 }
 
 pub struct ColorEnumerator<'a> {
     current_index: usize,
-    grid: &'a Grid<RefCell<LayeredGridCell>>,
+    grid: &'a Grid<GridType>,
 }
 
 impl<'a> Iterator for ColorEnumerator<'a> {

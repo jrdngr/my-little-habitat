@@ -46,57 +46,6 @@ impl <T> Grid<T> {
     }
 }
 
-/*
- *  Neighborhood methods
- */
-impl <T> Grid<T> {
-    pub fn get_neighborhood<'a>(&'a self, (x, y): (u32, u32)) -> Vec<&'a T> {
-        let mut neighborhood: Vec<&T> = Vec::new();
-
-        let top_free = y > 0;
-        let bottom_free = y < self.height - 1;
-        let left_free = x > 0;
-        let right_free = x < self.width - 1;
-
-        if top_free {
-            if left_free {
-                let pos = (x-1, y-1);
-                neighborhood.push(&self[pos]);
-            }
-            let pos = (x, y-1);
-            neighborhood.push(&self[pos]);
-            if right_free {
-                let pos = (x+1, y-1);
-                neighborhood.push(&self[pos]);
-            }
-        }
-
-        if left_free {
-            let pos = (x-1, y);
-            neighborhood.push(&self[pos]);
-        }
-        if right_free {
-            let pos = (x+1, y);
-            neighborhood.push(&self[pos]);
-        }
-
-        if bottom_free {
-            if left_free {
-                let pos = (x-1, y+1);
-                neighborhood.push(&self[pos]);
-            }
-            let pos = (x, y+1);
-            neighborhood.push(&self[pos]);
-            if right_free {
-                let pos = (x+1, y+1);
-                neighborhood.push(&self[pos]);
-            }
-        }
-
-        neighborhood
-    }
-}
-
 /*  
  *  Indexing methods
  */
