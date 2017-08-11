@@ -63,4 +63,8 @@ impl LayeredGridCell {
     pub fn set(&mut self, new_grid_cell: GridCell) {
         self.layers.insert(new_grid_cell.layer, new_grid_cell);
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.layers.is_empty()
+    }
 }

@@ -146,7 +146,7 @@ fn main() {
         }
         if mouse_down {
             if mouse_pos.0 < CANVAS_WIDTH as f64 {
-                if let Some(organism) = organisms::get(current_selection) {
+                if let Some(organism) = organisms::get_new_organism_of_type(current_selection) {
                     grid_manager.add_to_queue(pos_x, pos_y, organism.layer);
                     grid_manager.set(pos_x, pos_y, organism);
                 } 

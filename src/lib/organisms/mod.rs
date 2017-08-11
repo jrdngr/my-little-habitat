@@ -6,7 +6,7 @@ use ::lib::grid::gridcell::{ GridCell, LayeredGridCell };
 use ::lib::grid::Grid;
 use ::lib::grid::grid_manager::GridManager;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum OrganismType {
     Empty,
     Plant,
@@ -22,10 +22,17 @@ impl Grid<LayeredGridCell> {
     }
 }
 
-pub fn get(organism_type: OrganismType) -> Option<GridCell> {
+pub fn get_new_organism_of_type(organism_type: OrganismType) -> Option<GridCell> {
     match organism_type {
         OrganismType::Plant => Some(plant::new_plant()),
         _                   => None,
+    }
+}
+
+pub fn get_layer(organism_type: OrganismType) -> Option<u32> {
+    match get_new_organism_of_type(organism_type) {
+        Some(cell) => Some(cell.layer),
+        None       => None,
     }
 }
 
