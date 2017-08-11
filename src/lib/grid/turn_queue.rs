@@ -4,6 +4,9 @@ use std::collections::HashSet;
 type Layer = u32;
 type QueueElement = (u32, u32, Layer);
 
+/*
+ *  A queue to manage organism state updates.  Discards duplicate entries.
+ */
 pub struct TurnQueue {
     queue: VecDeque<QueueElement>,
     element_set: HashSet<QueueElement>,
