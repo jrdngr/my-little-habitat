@@ -16,7 +16,7 @@ pub struct GridManager {
 }
 
 impl GridManager {
-    pub fn new(width: u32, height: u32) -> Self{
+    pub fn new(width: u32, height: u32) -> Self {
         GridManager {
             grid: Grid::new(width, height),
             turn_queue: TurnQueue::new(),
@@ -42,7 +42,7 @@ impl GridManager {
         }
     }
 
-    pub fn step(&mut self) {
+    pub fn update(&mut self) {
         for _ in 0..self.turn_queue.len() {
             let next = self.turn_queue.pop();
             match next {
@@ -70,15 +70,15 @@ impl GridManager {
         result
     }
 
-    pub fn get_neighborhood_with_radius(&self, (x, y): (u32, u32), radius: u32) -> Vec<&GridType> {
+    pub fn get_neighborhood_with_radius(&self, (x, y): (u32, u32), radius: u32) -> Vec<((u32, u32), &GridType)> {
         let mut result = Vec::new();
         for cell_coords in self.get_neighborhood_coordinates((x, y), radius) {
-            result.push(&self.grid[cell_coords]);
+            result.push((cell_coords, &self.grid[cell_coords]));
         }
         result
     }
 
-    pub fn get_neighborhood_of_type_with_radius(&self, (x, y): (u32, u32), radius: u32, organism_type: OrganismType) -> Vec<&GridType> {
+    pub fn get_neighborhood_of_type_with_radius(&self, (x, y): (u32, u32), radius: u32, organism_type: OrganismType) -> Vec<((u32, u32), &GridType)> {
         let mut result = Vec::new();
         let organism_layer = organisms::get_layer(organism_type);
         match organism_layer {
@@ -87,7 +87,7 @@ impl GridManager {
                     let cell = &self.grid[cell_coords];
                     let cell_type = cell.borrow().get_layer(layer).unwrap().organism_type;
                     if cell_type == organism_type {
-                        result.push(&self.grid[cell_coords]);
+                        result.push((cell_coords, &self.grid[cell_coords]));
                     }
                 }
             },
@@ -95,18 +95,18 @@ impl GridManager {
                for cell_coords in self.get_neighborhood_coordinates((x, y), radius) {
                     let cell = &self.grid[cell_coords];
                     if cell.borrow().is_empty() {
-                        result.push(&self.grid[cell_coords]);
+                        result.push((cell_coords, &self.grid[cell_coords]));
                     }
                 }
             },
         }
         result
     }
-     pub fn get_neighborhood(&self, (x, y): (u32, u32)) -> Vec<&GridType> {
+     pub fn get_neighborhood(&self, (x, y): (u32, u32)) -> Vec<((u32, u32), &GridType)> {
          self.get_neighborhood_with_radius((x, y), 1)
      }
 
-     pub fn get_neighborhood_of_type(&self, (x, y): (u32, u32), organism_type: OrganismType) -> Vec<&GridType> {
+     pub fn get_neighborhood_of_type(&self, (x, y): (u32, u32), organism_type: OrganismType) -> Vec<((u32, u32), &GridType)> {
          self.get_neighborhood_of_type_with_radius((x, y), 1, organism_type)
      }
 

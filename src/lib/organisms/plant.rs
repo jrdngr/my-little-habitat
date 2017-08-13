@@ -14,6 +14,9 @@ pub fn new_plant() -> GridCell {
 pub fn plant_action(grid_manager: &mut GridManager, (x, y): (u32, u32)) {
     {
         let neighborhood = grid_manager.get_neighborhood_of_type((x, y), OrganismType::Empty);
+        if neighborhood.len() > 0 {
+            random_element(neighborhood.as_slice()).1.borrow_mut().set(new_plant());
+        }
     }
     
     grid_manager.add_to_queue(x, y, LAYER);
