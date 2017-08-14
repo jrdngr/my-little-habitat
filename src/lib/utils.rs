@@ -9,8 +9,8 @@ pub fn random_index(min: usize, max:usize) -> usize {
     rand::thread_rng().gen_range(min, max)
 }
 
-pub fn random_percentage(percentage: u8) -> bool {
-    percentage as f32 / 100.0 >= rand::thread_rng().gen_range(0 as f32, 1 as f32)
+pub fn random_percentage(percentage: f32) -> bool {
+    percentage / 100.0 >= rand::thread_rng().gen_range(0.0, 1.0)
 }
 
 pub fn random_element<T>(values: &[T]) -> &T {
