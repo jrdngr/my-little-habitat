@@ -71,7 +71,7 @@ impl Environment {
     }
 
     fn update(&mut self, grid_manager: &mut GridManager) {
-        grid_manager.step();
+        grid_manager.update();
     }
 }
 
