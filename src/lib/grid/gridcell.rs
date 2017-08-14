@@ -36,12 +36,14 @@ impl GridCell {
 }
 
 pub struct LayeredGridCell {
+    position: (u32, u32),
     layers: HashMap<u32, GridCell>,
 }
 
 impl LayeredGridCell {
-    pub fn new() -> Self {
+    pub fn new(x: u32, y: u32) -> Self {
         LayeredGridCell {
+            position: (x, y),
             layers: HashMap::new(),
         }
     }
@@ -54,6 +56,10 @@ impl LayeredGridCell {
             },
             None => EMPTY_COLOR, 
         }
+    }
+
+    pub fn get_position(&self) -> (u32, u32) {
+        self.position
     }
 
     pub fn get_layer(&self, layer: u32) -> Option<&GridCell> {

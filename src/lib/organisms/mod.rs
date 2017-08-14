@@ -15,8 +15,10 @@ pub enum OrganismType {
 impl Grid<LayeredGridCell> {
     pub fn new(width: u32, height: u32) -> Grid<RefCell<LayeredGridCell>> {
         let mut data = Vec::new();
-        for _ in 0..(width * height) {
-            data.push(RefCell::new(LayeredGridCell::new()));
+        for y in 0..height {
+            for x in 0..width {
+                data.push(RefCell::new(LayeredGridCell::new(x, y)));
+            }
         }
         Grid::with_data(width, height, data)
     }

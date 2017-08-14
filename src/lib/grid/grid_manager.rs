@@ -32,6 +32,7 @@ impl GridManager {
     }
 
     pub fn set(&mut self, x: u32, y: u32, new_grid_cell: GridCell) {
+        self.turn_queue.push((x, y, new_grid_cell.layer));
         self.grid[(x, y)].borrow_mut().set(new_grid_cell);
     }
 
