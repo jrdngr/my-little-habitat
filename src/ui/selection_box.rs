@@ -17,5 +17,12 @@ pub fn get_buttons() -> Vec<SelectionBox> {
         }
     );
 
+    buttons.push(
+        SelectionBox {
+            organism_type: OrganismType::Cow,
+            color: organisms::cow::new_cow().color,
+        }
+    );
+
     buttons    
 } 

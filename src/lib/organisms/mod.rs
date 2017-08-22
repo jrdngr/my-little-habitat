@@ -1,4 +1,5 @@
 pub mod plant;
+pub mod cow;
 
 use std::cell::RefCell;
 
@@ -10,6 +11,7 @@ use ::lib::grid::grid_manager::GridManager;
 pub enum OrganismType {
     Empty,
     Plant,
+    Cow,
 }
 
 impl Grid<LayeredGridCell> {
@@ -27,6 +29,7 @@ impl Grid<LayeredGridCell> {
 pub fn get_new_organism_of_type(organism_type: OrganismType) -> Option<GridCell> {
     match organism_type {
         OrganismType::Plant => Some(plant::new_plant()),
+        OrganismType::Cow   => Some(cow::new_cow()),
         _                   => None,
     }
 }
@@ -47,6 +50,7 @@ pub fn act(grid_manager: &mut GridManager, (x, y, layer): (u32, u32, u32)) {
     if let Some(id) = cell_type {
         match id {
             OrganismType::Plant => plant::plant_action(grid_manager, (x, y)),
+            OrganismType::Cow   => cow::cow_action(grid_manager, (x, y)),
             _                   => {},
         }
     }

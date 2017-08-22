@@ -36,6 +36,10 @@ impl GridManager {
         self.grid[(x, y)].borrow_mut().set(new_grid_cell);
     }
 
+    pub fn clear(&mut self, x: u32, y: u32, layer: u32) {
+        self.grid[(x, y)].borrow_mut().clear_layer(layer);
+    }
+
     pub fn color_enumerator(&self) -> ColorEnumerator {
         ColorEnumerator {
             current_index: 0,
@@ -86,9 +90,10 @@ impl GridManager {
             Some(layer) => {
                 for cell_coords in self.get_neighborhood_coordinates((x, y), radius) {
                     let cell = &self.grid[cell_coords];
-                    let cell_type = cell.borrow().get_layer(layer).unwrap().organism_type;
-                    if cell_type == organism_type {
-                        result.push((cell_coords, &self.grid[cell_coords]));
+                    if let Some(cell_type) = cell.borrow().get_layer(layer) {
+                        if cell_type.organism_type == organism_type {
+                            result.push((cell_coords, &self.grid[cell_coords]));
+                        }
                     }
                 }
             },

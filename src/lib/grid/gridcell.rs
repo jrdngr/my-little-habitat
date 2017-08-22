@@ -70,6 +70,14 @@ impl LayeredGridCell {
         self.layers.insert(new_grid_cell.layer, new_grid_cell);
     }
 
+    pub fn clear_layer(&mut self, layer: u32) {
+        self.layers.remove(&layer);
+    }
+
+    pub fn clear_all(&mut self) {
+        self.layers.clear();
+    }
+
     pub fn is_empty(&self) -> bool {
         self.layers.is_empty()
     }
