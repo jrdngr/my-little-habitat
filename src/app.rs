@@ -1,5 +1,7 @@
 use yew::prelude::*;
 
+use crate::webgl::Model;
+
 pub struct App {}
 
 pub enum Msg {}
@@ -16,9 +18,16 @@ impl Component for App {
         true
     }
 
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        false
+    }
+
     fn view(&self) -> Html {
         html! {
-            <p>{ "Hello world!" }</p>
+            <div>
+                <p>{ "Hello world!" }</p>
+                <Model/>
+            </div>
         }
     }
 }
