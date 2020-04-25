@@ -1,17 +1,24 @@
 [package]
-name = "my-little-habitat"
+name = "webgl"
 version = "0.1.0"
-authors = ["Jordan Grace <jordan.t.grace@gmail.com>"]
+authors = ["Miklós Tusz <mdtusz@gmail.com>"]
+edition = "2018"
 
-[profile.dev]
-opt-level = 3
-
-[profile.release]
-opt-level = 3
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-rand = "0.3"
-piston = "0.32.0"
-piston2d-graphics = "0.21.1"
-pistoncore-glutin_window = "0.37.0"
-piston2d-opengl_graphics = "0.44.0"
+js-sys = "0.3"
+yew = "0.15"
+wasm-bindgen = "0.2"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  'HtmlCanvasElement',
+  'WebGlBuffer',
+  'WebGlProgram',
+  'WebGlRenderingContext',
+  'WebGlShader',
+  'WebGlUniformLocation',
+]

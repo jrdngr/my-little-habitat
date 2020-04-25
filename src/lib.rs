@@ -1,0 +1,10 @@
+mod webgl;
+
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn run_app() -> Result<(), JsValue> {
+    yew::start_app::<webgl::Model>();
+
+    Ok(())
+}
