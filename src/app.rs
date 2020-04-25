@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::webgl::Model;
+use crate::grid::Grid;
 
 pub struct App {}
 
@@ -26,7 +26,7 @@ impl Component for App {
         html! {
             <div>
                 <p>{ "Hello world!" }</p>
-                <Model/>
+                <Grid width=500 height=300/>
             </div>
         }
     }

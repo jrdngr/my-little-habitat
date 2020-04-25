@@ -2,31 +2,46 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement;
 use web_sys::WebGlRenderingContext as GL;
 use yew::services::{RenderService, Task};
-use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
+use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender, Properties};
 
-pub struct Model {
+pub struct Grid {
     canvas: Option<HtmlCanvasElement>,
     gl: Option<GL>,
     link: ComponentLink<Self>,
     node_ref: NodeRef,
     render_loop: Option<Box<dyn Task>>,
+    width: i32,
+    height: i32,
+    points: Vec<f32>,
 }
 
-pub enum Msg {
+pub enum GridMsg {
     Render(f64),
 }
 
-impl Component for Model {
-    type Message = Msg;
-    type Properties = ();
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Model {
+#[derive(Clone, PartialEq, Properties)]
+pub struct GridProps {
+    #[prop_or_default]
+    pub width: i32,
+    #[prop_or_default]
+    pub height: i32,
+}
+
+impl Component for Grid {
+    type Message = GridMsg;
+    type Properties = GridProps;
+
+    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+        Grid {
             canvas: None,
             gl: None,
             link,
             node_ref: NodeRef::default(),
             render_loop: None,
+            width: props.width,
+            height: props.height,
+            points: Vec::new(),
         }
     }
 
@@ -44,7 +59,7 @@ impl Component for Model {
             .dyn_into()
             .unwrap();
 
-        gl.viewport(0, 0, 500, 500);
+        gl.viewport(0, 0, self.width, self.height);
 
         self.canvas = Some(canvas);
         self.gl = Some(gl);
@@ -56,7 +71,7 @@ impl Component for Model {
         if first_render {
             // The callback to request animation frame is passed a time value which can be used for
             // rendering motion independent of the framerate which may vary.
-            let render_frame = self.link.callback(Msg::Render);
+            let render_frame = self.link.callback(GridMsg::Render);
             let handle = RenderService::new().request_animation_frame(render_frame);
 
             // A reference to the handle must be stored, otherwise it is dropped and the render won't
@@ -67,7 +82,7 @@ impl Component for Model {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::Render(timestamp) => {
+            GridMsg::Render(timestamp) => {
                 // Render functions are likely to get quite large, so it is good practice to split
                 // it into it's own function rather than keeping it inline in the update match
                 // case. This also allows for updating other UI elements that may be rendered in
@@ -80,7 +95,7 @@ impl Component for Model {
 
     fn view(&self) -> Html {
         html! {
-            <canvas width="500" height="500" ref={self.node_ref.clone()}/>
+            <canvas width={self.width} height={self.height} ref={self.node_ref.clone()}/>
         }
     }
 
@@ -89,7 +104,7 @@ impl Component for Model {
     }
 }
 
-impl Model {
+impl Grid {
     fn render_gl(&mut self, timestamp: f64) {
         let gl = self.gl.as_ref().expect("GL Context not initialized!");
 
@@ -132,7 +147,7 @@ impl Model {
 
         gl.draw_arrays(GL::TRIANGLES, 0, 6);
 
-        let render_frame = self.link.callback(Msg::Render);
+        let render_frame = self.link.callback(GridMsg::Render);
         let handle = RenderService::new().request_animation_frame(render_frame);
 
         // A reference to the new handle must be retained for the next render to run.
