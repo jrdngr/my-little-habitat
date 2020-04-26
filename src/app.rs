@@ -26,7 +26,7 @@ impl Component for App {
         html! {
             <div>
                 <p>{ "Hello world!" }</p>
-                <Grid width=500 height=500 />
+                <Grid size=(100, 100) cell_size=(5, 5) />
             </div>
         }
     }
