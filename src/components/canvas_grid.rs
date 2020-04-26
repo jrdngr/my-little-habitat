@@ -6,6 +6,7 @@ use yew::services::{RenderService, Task};
 use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender, Properties};
 
 use crate::grid::{Grid, GridCell, SimpleCell};
+use crate::utils::line_between;
 
 pub struct CanvasGrid {
     canvas: Option<HtmlCanvasElement>,
@@ -14,7 +15,7 @@ pub struct CanvasGrid {
     node_ref: NodeRef,
     render_loop: Option<Box<dyn Task>>,
     props: CanvasGridProps,
-    is_mouse_down: bool,
+    mouse: MouseState,
     grid: Grid<SimpleCell>,
     update_queue: VecDeque<(usize, usize)>,
 }
@@ -37,6 +38,12 @@ pub struct CanvasGridProps {
     pub cell_height: usize,
 }
 
+#[derive(Debug, Default, Clone)]
+struct MouseState {
+    pub is_button_down: bool,
+    pub last_position: (i32, i32),
+}
+
 impl Component for CanvasGrid {
     type Message = CanvasGridMsg;
     type Properties = CanvasGridProps;
@@ -48,7 +55,7 @@ impl Component for CanvasGrid {
             link,
             node_ref: NodeRef::default(),
             render_loop: None,
-            is_mouse_down: false,
+            mouse: Default::default(),
             grid: Grid::new(props.width, props.height),
             props,
             update_queue: VecDeque::new(),
@@ -83,16 +90,21 @@ impl Component for CanvasGrid {
             CanvasGridMsg::Render => {
                 self.render_2d();
             }
-            CanvasGridMsg::MouseUp => self.is_mouse_down = false,
-            CanvasGridMsg::MouseLeave => self.is_mouse_down = false,
+            CanvasGridMsg::MouseUp => self.mouse.is_button_down = false,
+            CanvasGridMsg::MouseLeave => self.mouse.is_button_down = false,
             CanvasGridMsg::MouseDown(x, y) => {
-                self.is_mouse_down = true;
+                self.mouse.is_button_down = true;
+                self.mouse.last_position = (x, y);
                 let (x, y) = self.pixels_to_coordinates(x, y);
                 self.set_cell(x, y, "white");
             }
-            CanvasGridMsg::MouseMove(x, y) => if self.is_mouse_down {
-                let (x, y) = self.pixels_to_coordinates(x, y);
-                self.set_cell(x, y, "white");
+            CanvasGridMsg::MouseMove(x, y) => if self.mouse.is_button_down {
+                let points = line_between(self.mouse.last_position, (x, y));
+                for point in points {
+                    let (cell_x, cell_y) = self.pixels_to_coordinates(point.0, point.1);
+                    self.set_cell(cell_x, cell_y, "white");    
+                }
+                self.mouse.last_position = (x, y);
             },
         }
         false
