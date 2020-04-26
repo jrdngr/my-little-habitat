@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::grid::Grid;
+use crate::components::CanvasGrid;
 
 pub struct App {}
 
@@ -26,7 +26,7 @@ impl Component for App {
         html! {
             <div>
                 <p>{ "Hello world!" }</p>
-                <Grid size=(100, 100) cell_size=(5, 5) />
+                <CanvasGrid size=(100, 100) cell_size=(5, 5) />
             </div>
         }
     }
