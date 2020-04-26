@@ -198,7 +198,7 @@ impl CanvasGrid {
 }
 
 #[derive(Debug, Clone)]
-struct Cell {
+pub struct Cell {
     color: String,
 }
 
@@ -211,3 +211,4 @@ impl Cell {
         self.color = String::from(color);
     }
 }
+
