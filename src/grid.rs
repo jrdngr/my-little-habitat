@@ -93,13 +93,7 @@ impl Component for Grid {
                 width={self.width} 
                 height={self.height}
                 onclick=self.link.callback(|event: MouseEvent| {
-                    let x = event.client_x();
-                    let y = event.client_y();
-
-                    let eventstr = format!("{} {}", x, y);
-                    ConsoleService::new().log(&eventstr);
-
-                    GridMsg::Clicked(x as u32, y as u32)
+                    GridMsg::Clicked(event.offset_x() as u32, event.offset_y() as u32)
                 })
                 ref={self.node_ref.clone()}
             />
@@ -118,7 +112,7 @@ impl Grid {
         ctx.set_fill_style(&"white".into());
 
         for (x, y) in &self.points {
-            ctx.fill_rect(*x, *y, self.cell_width, self.cell_width);
+            ctx.fill_rect(*x, *y, self.cell_width, self.cell_height);
         }
 
         let render_frame = self.link.callback(|_| GridMsg::Render);
