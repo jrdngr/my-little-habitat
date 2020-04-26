@@ -26,7 +26,7 @@ impl Component for App {
         html! {
             <div>
                 <p>{ "Hello world!" }</p>
-                <CanvasGrid size=(100, 100) cell_size=(5, 5) />
+                <CanvasGrid width=100 height=100/>
             </div>
         }
     }

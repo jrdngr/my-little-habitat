@@ -5,17 +5,18 @@ use web_sys::{MouseEvent, HtmlCanvasElement, CanvasRenderingContext2d};
 use yew::services::{RenderService, Task};
 use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender, Properties};
 
+use crate::grid::{Grid, GridCell, SimpleCell};
+
 pub struct CanvasGrid {
     canvas: Option<HtmlCanvasElement>,
     ctx: Option<CanvasRenderingContext2d>,
     link: ComponentLink<Self>,
     node_ref: NodeRef,
     render_loop: Option<Box<dyn Task>>,
-    size: (u32, u32),
-    cell_size: (f64, f64),
+    props: CanvasGridProps,
     is_mouse_down: bool,
-    cells: Vec<Cell>,
-    update_queue: VecDeque<(u32, u32)>,
+    grid: Grid<SimpleCell>,
+    update_queue: VecDeque<(usize, usize)>,
 }
 
 pub enum CanvasGridMsg {
@@ -28,9 +29,12 @@ pub enum CanvasGridMsg {
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct CanvasGridProps {
-    pub size: (u32, u32),
-    #[prop_or_else(|| (10, 10))]
-    pub cell_size: (u32, u32),
+    pub width: usize,
+    pub height: usize,
+    #[prop_or_else(|| 5)]
+    pub cell_width: usize,
+    #[prop_or_else(|| 5)]
+    pub cell_height: usize,
 }
 
 impl Component for CanvasGrid {
@@ -38,19 +42,15 @@ impl Component for CanvasGrid {
     type Properties = CanvasGridProps;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let cell_count = props.size.0 * props.size.1;
-        let cells = vec![Cell{ color: String::from("black") }; cell_count as usize];
-
         CanvasGrid {
             canvas: None,
             ctx: None,
             link,
             node_ref: NodeRef::default(),
             render_loop: None,
-            size: props.size,
-            cell_size: (props.cell_size.0 as f64, props.cell_size.1 as f64),
             is_mouse_down: false,
-            cells,
+            grid: Grid::new(props.width, props.height),
+            props,
             update_queue: VecDeque::new(),
         }
     }
@@ -87,10 +87,12 @@ impl Component for CanvasGrid {
             CanvasGridMsg::MouseLeave => self.is_mouse_down = false,
             CanvasGridMsg::MouseDown(x, y) => {
                 self.is_mouse_down = true;
-                self.set_cell(self.pixels_to_coordinates(x, y), "white");
+                let (x, y) = self.pixels_to_coordinates(x, y);
+                self.set_cell(x, y, "white");
             }
             CanvasGridMsg::MouseMove(x, y) => if self.is_mouse_down {
-                self.set_cell(self.pixels_to_coordinates(x, y), "white")
+                let (x, y) = self.pixels_to_coordinates(x, y);
+                self.set_cell(x, y, "white");
             },
         }
         false
@@ -121,54 +123,31 @@ impl Component for CanvasGrid {
 }
 
 impl CanvasGrid {
-    fn cell(&self, x: u32, y: u32) -> Option<&Cell> {
-        let index = self.cell_index(x, y);
-        self.cells.get(index)
-    }
-
-    fn cell_mut(&mut self, x: u32, y: u32) -> Option<&mut Cell> {
-        let index = self.cell_index(x, y);
-        self.cells.get_mut(index)
-    }
-
-    fn set_cell(&mut self, (x, y): (u32, u32), color: &str) {
-        if let Some(cell) = self.cell_mut(x, y) {
-            cell.set_color(color);
-            self.update_queue.push_back((x, y));
-        }
-    }
-
-    fn cell_index(&self, x: u32, y: u32) -> usize {
-        (y * self.size.0 + x) as usize
-    }
-
-    fn cell_coordinates(&self, index: usize) -> (u32, u32) {
-        let x = index as u32 % self.size.0;
-        let y = index as u32 / self.size.1;
-
-        (x, y)
+    fn set_cell<T: AsRef<str>>(&mut self, x: usize, y: usize, color: T) {
+        self.grid.set_cell(x, y, SimpleCell::new(color.as_ref()));
+        self.update_queue.push_back((x, y));
     }
 
     fn pixel_size(&self) -> (f64, f64) {
-        let width = self.size.0 as f64 * self.cell_size.0;
-        let height = self.size.1 as f64 * self.cell_size.1;
-        (width, height)
+        let width = self.props.width * self.props.cell_width;
+        let height = self.props.height  * self.props.cell_height;
+        (width as f64, height as f64)
     }
 
-    fn pixels_to_coordinates(&self, x: i32, y: i32) -> (u32, u32) {
-        let x = x / self.cell_size.0 as i32;
-        let y = y / self.cell_size.1 as i32;
+    fn pixels_to_coordinates(&self, x: i32, y: i32) -> (usize, usize) {
+        let x = x / self.props.cell_width as i32;
+        let y = y / self.props.cell_height as i32;
 
-        (x as u32, y as u32)
+        (x as usize, y as usize)
     }
 
-    fn draw_cell(&self, x: u32, y: u32) {
+    fn draw_cell(&self, x: usize, y: usize) {
         if let Some(ctx) = &self.ctx {
-            if let Some(cell) = self.cell(x, y) {
-                let x = x as f64 * self.cell_size.0;
-                let y = y as f64 * self.cell_size.1;
+            if let Some(cell) = self.grid.cell(x, y) {
+                let x = x * self.props.cell_width;
+                let y = y * self.props.cell_height;
                 ctx.set_fill_style(&cell.color().into());
-                ctx.fill_rect(x, y, self.cell_size.0, self.cell_size.1);
+                ctx.fill_rect(x as f64, y as f64, self.props.cell_width as f64, self.props.cell_height as f64);
             }
         }
     }
@@ -179,8 +158,8 @@ impl CanvasGrid {
             ctx.set_fill_style(&"black".into());
             ctx.fill_rect(0.0, 0.0, width, height);    
     
-            for index in 0..self.cells.len() {
-                let (x, y) = self.cell_coordinates(index);
+            for index in 0..self.grid.cell_count() {
+                let (x, y) = self.grid.cell_coordinates(index);
                 self.draw_cell(x, y);
             }
         }
@@ -196,19 +175,3 @@ impl CanvasGrid {
         self.render_loop = Some(Box::new(handle));
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct Cell {
-    color: String,
-}
-
-impl Cell {
-    fn color(&self) -> &str {
-        &self.color
-    }
-
-    fn set_color(&mut self, color: &str) {
-        self.color = String::from(color);
-    }
-}
-

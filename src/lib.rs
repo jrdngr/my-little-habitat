@@ -1,5 +1,7 @@
 mod app;
 mod components;
+mod grid;
+mod utils;
 mod webgl;
 
 use wasm_bindgen::prelude::*;
