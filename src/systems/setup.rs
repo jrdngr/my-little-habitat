@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use crate::{WINDOW_SIZE, Energy};
+
+use crate::{
+    WINDOW_SIZE,
+};
 
 pub fn setup(
     mut commands: Commands,
@@ -7,16 +10,7 @@ pub fn setup(
 ) {
     commands
         .spawn(Camera2dComponents::default())
-        .spawn(UiCameraComponents::default())
-        .spawn(SpriteComponents {
-            material: materials.add(Color::rgb(0.0, 0.7, 0.2).into()),
-            translation: Translation(Vec3::new(0.0, 0.0, 0.0)),
-            sprite: Sprite {
-                size: Vec2::new(10.0, 10.0),
-            },
-            ..Default::default()
-        })
-        .with(Energy(100));
+        .spawn(UiCameraComponents::default());
 
     // Add walls
     let wall_material = materials.add(Color::rgb(0.9, 0.9, 0.9).into());
@@ -61,4 +55,3 @@ pub fn setup(
             ..Default::default()
         });
 }
-
