@@ -23,7 +23,7 @@ impl Plugin for GamePlugin {
 
         app.add_startup_system(systems::setup.system())
             .add_resource(WindowDescriptor {
-                title: "I am a window!".to_string(),
+                title: "My Little Habitat".to_string(),
                 width: WINDOW_SIZE.0,
                 height: WINDOW_SIZE.1,
                 vsync: true,
