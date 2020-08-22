@@ -2,8 +2,8 @@ use bevy::{
     input::mouse::MouseButtonInput,
     prelude::*,
     window::CursorMoved,
+    render::camera::{OrthographicProjection, CameraProjection},
 };
-use serde_json::json;
 
 use crate::{
     creatures::{Energy, Position, Plant},
@@ -58,34 +58,31 @@ pub fn spawn(
     window: Res<WindowDescriptor>,
     mouse_button_input_events: Res<Events<MouseButtonInput>>,
     cursor_moved_events: Res<Events<CursorMoved>>,
+    mut camera_query: Query<(&OrthographicProjection, &Transform)>,
 ) {
     state.update(&mouse_button_input_events, &cursor_moved_events, &window);
    
     if state.left {
         let Position { x, y } = state.position;
 
-        // println!("{}", json!({
-        //     "state": {
-        //         "x": state.position.x,
-        //         "y": state.position.y,
-        //     },
-        //     "calc": {
-        //         "x": x,
-        //         "y": y,
-        //     },
-        //     "window": {
-        //         "width": window.width,
-        //         "height": window.height,
-        //     }
-        // }));
-
-        commands.spawn(PbrComponents {
-            mesh: meshes.add(Mesh::from(shape::Quad { size: (10.0, 10.0).into(), flip: false })),
-            material: materials.add(Color::rgb(0.0, 0.8, 0.2).into()),
-            ..Default::default()
-        })
-            .with(Plant)
-            .with(Energy(100))
-            .with(Position { x, y });
+        for (op, t) in &mut camera_query.iter() {
+            let transform = op.get_projection_matrix() * t.value;
+            let position = Vec4::new(x, y, 0.0, 1.0);
+            let world_position = transform.inverse() * position;
+    
+            let (x, y) = (world_position.x(), world_position.y());
+            
+            commands.spawn(PbrComponents {
+                mesh: meshes.add(Mesh::from(shape::Quad { size: (50.0, 50.0).into(), flip: false })),
+                material: materials.add(Color::rgb(0.0, 0.8, 0.2).into()),
+                translation: Translation::new(x, y, 0.0),
+                ..Default::default()
+            })
+                .with(Plant)
+                .with(Energy(100))
+                .with(Position { x, y });
+            
+            break;
+        }
     }
 }

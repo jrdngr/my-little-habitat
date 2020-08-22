@@ -1,4 +1,5 @@
 mod creatures;
+mod plugins;
 mod systems;
 
 use bevy::{
@@ -11,6 +12,7 @@ const WINDOW_SIZE: (u32, u32) = (800, 600);
 fn main() {
     App::build()
         .add_default_plugins()
+        .add_plugin(plugins::window_resize::WindowResizePlugin)
         .add_plugin(GamePlugin)
         .run();
 }
