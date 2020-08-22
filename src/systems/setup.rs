@@ -10,8 +10,7 @@ pub fn setup(
 ) {
     commands
         .spawn(Camera2dComponents::default())
-        .spawn(UiCameraComponents::default())
-;
+        .spawn(UiCameraComponents::default());
 
     // Add walls
     let wall_material = materials.add(Color::rgb(0.9, 0.9, 0.9).into());

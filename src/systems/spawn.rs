@@ -54,7 +54,7 @@ pub fn spawn(
     mut commands: Commands,
     mut state: ResMut<MouseState>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
     window: Res<WindowDescriptor>,
     mouse_button_input_events: Res<Events<MouseButtonInput>>,
     cursor_moved_events: Res<Events<CursorMoved>>,
@@ -72,10 +72,12 @@ pub fn spawn(
     
             let (x, y) = (world_position.x(), world_position.y());
             
-            commands.spawn(PbrComponents {
-                mesh: meshes.add(Mesh::from(shape::Quad { size: (50.0, 50.0).into(), flip: false })),
-                material: materials.add(Color::rgb(0.0, 0.8, 0.2).into()),
-                translation: Translation::new(x, y, 0.0),
+            commands.spawn(SpriteComponents {
+                material: materials.add(Color::rgb(0.0, 0.5, 0.1).into()),
+                translation: Translation(Vec3::new(x, y, 0.0)),
+                sprite: Sprite {
+                    size: Vec2::new(10.0, 10.0),
+                },
                 ..Default::default()
             })
                 .with(Plant)
