@@ -53,7 +53,6 @@ impl MouseState {
 pub fn spawn(
     mut commands: Commands,
     mut state: ResMut<MouseState>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     window: Res<WindowDescriptor>,
     mouse_button_input_events: Res<Events<MouseButtonInput>>,
