@@ -31,11 +31,10 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut AppBuilder) {
-        use systems::spawn;
-
         app.add_startup_system(systems::setup.system())
-            .add_resource(spawn::MouseState::default())
+            .add_resource(resources::InputState::default())
             .add_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
-            .add_system(spawn.system());
+            .add_system(systems::update_input_state.system())
+            .add_system(systems::spawn.system());
     }
 }
