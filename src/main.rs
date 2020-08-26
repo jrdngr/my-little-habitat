@@ -1,7 +1,7 @@
-mod creatures;
-mod plugins;
-mod resources;
-mod systems;
+pub mod creatures;
+pub mod plugins;
+pub mod resources;
+pub mod systems;
 
 use bevy::{
     prelude::*,
@@ -9,6 +9,7 @@ use bevy::{
 };
 
 const WINDOW_SIZE: (u32, u32) = (1920, 1080);
+const GRID_SIZE: (usize, usize) = (100, 100);
 
 fn  main() {
     App::build()
@@ -21,6 +22,7 @@ fn  main() {
         })
         .add_default_plugins()
         .add_plugin(plugins::window_resize::WindowResizePlugin)
+        .add_resource(resources::Grid::new(GRID_SIZE.0, GRID_SIZE.1))
         .add_plugin(GamePlugin)
         .run();
 }
