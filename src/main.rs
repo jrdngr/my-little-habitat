@@ -1,5 +1,6 @@
 mod creatures;
 mod plugins;
+mod resources;
 mod systems;
 
 use bevy::{

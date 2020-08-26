@@ -1674,6 +1674,7 @@ dependencies = [
 name = "my-little-hab"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bevy",
  "serde_json",
 ]
